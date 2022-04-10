@@ -1,4 +1,6 @@
 using DataAccess;
+using DataAccess.Seeds;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,5 +28,16 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using(var scope = app.Services.CreateScope())
+{
+    using (var context = scope.ServiceProvider.GetRequiredService<Context>())
+    {
+        //UsersSeed.Seed(context);
+        User user = context.Users.First(u => u.Auth0UserId == "test");
+        //Console.WriteLine(user);
+        PostsSeed.Seed(context, user);
+    }
+}
 
 app.Run();
