@@ -1,9 +1,10 @@
 using Domain.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class Context : DbContext
+public class Context : IdentityDbContext
 {
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Like> Likes => Set<Like>();
@@ -12,7 +13,7 @@ public class Context : DbContext
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<User> Users => Set<User>();
     
-    //public Context() {}
+    public Context() {}
     
     public Context(DbContextOptions<Context> options) : base(options) { }
 

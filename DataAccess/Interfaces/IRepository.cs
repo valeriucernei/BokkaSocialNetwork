@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Common.Models.PagedRequest;
 using Domain;
 
 namespace DataAccess.Interfaces;
@@ -18,7 +19,7 @@ public interface IRepository
     
     Task SaveChangesAsync();
 
-    // Task<PaginatedResult<TDto>> GetPagedData<TEntity, TDto>(PagedRequest pagedRequest) 
-    //     where TEntity : BaseEntity
-    //     where TDto : class;
+    Task<PaginatedResult<TDto>> GetPagedData<TEntity, TDto>(PagedRequest pagedRequest) 
+        where TEntity : BaseEntity
+        where TDto : class;
 }

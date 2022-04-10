@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using AutoMapper;
+using Common.Models.PagedRequest;
+using DataAccess.Extensions;
 using DataAccess.Interfaces;
 using Domain;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +30,12 @@ public class Repository : IRepository
         return (await _context.FindAsync<TEntity>(id))!;
     }
 
-    public async Task<TEntity> GetByIdWithInclude<TEntity>(Guid id, params Expression<Func<TEntity, object>>[] includeProperties) where TEntity : BaseEntity
+    public async Task<TEntity> GetByIdWithInclude<TEntity>
+    (
+        Guid id, 
+        params Expression<Func<TEntity, object>>[] includeProperties
+    ) 
+        where TEntity : BaseEntity
     {
         var query = IncludeProperties(includeProperties);
         return (await query.FirstOrDefaultAsync(entity => entity.Id == id))!;
@@ -57,8 +64,16 @@ public class Repository : IRepository
     {
         await _context.SaveChangesAsync();
     }
-    
-    private IQueryable<TEntity> IncludeProperties<TEntity>(params Expression<Func<TEntity, object>>[] includeProperties) where TEntity : BaseEntity
+
+    public async Task<PaginatedResult<TDto>> GetPagedData<TEntity, TDto>(PagedRequest pagedRequest) 
+        where TEntity : BaseEntity 
+        where TDto : class
+    {
+        return await _context.Set<TEntity>().CreatePaginatedResultAsync<TEntity, TDto>(pagedRequest, _mapper);
+    }
+
+    private IQueryable<TEntity> IncludeProperties<TEntity>(params Expression<Func<TEntity, object>>[] includeProperties) 
+        where TEntity : BaseEntity
     {
         IQueryable<TEntity> entities = _context.Set<TEntity>();
         foreach (var includeProperty in includeProperties)
