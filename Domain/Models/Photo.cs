@@ -1,6 +1,6 @@
 namespace Domain.Models;
 
-public class Photo : EntityBase
+public sealed class Photo : BaseEntity
 {
     public string Extension { get; set; } = String.Empty;
 

@@ -1,6 +1,6 @@
 namespace Domain.Models;
 
-public class Subscription : EntityBase
+public sealed class Subscription : BaseEntity
 {
     public DateTime StartDateTime { get; set; } = DateTime.Now;
     public DateTime EndDateTime { get; set; } = DateTime.Now;

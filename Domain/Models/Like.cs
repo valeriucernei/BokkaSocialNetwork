@@ -1,6 +1,6 @@
 namespace Domain.Models;
 
-public class Like : EntityBase
+public sealed class Like : BaseEntity
 {
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain;
 
-public class EntityBase
+public class BaseEntity
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();

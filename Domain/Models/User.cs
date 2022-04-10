@@ -3,7 +3,7 @@ using Common.Enums;
 
 namespace Domain.Models;
 
-public class User : EntityBase
+public sealed class User : BaseEntity
 {
     public string Auth0UserId { get; set; } = String.Empty;
     public string FirstName { get; set; } = String.Empty;

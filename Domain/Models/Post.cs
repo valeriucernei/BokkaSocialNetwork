@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace Domain.Models;
 
-public class Post : EntityBase
+public sealed class Post : BaseEntity
 {
     public string Title { get; set; } = String.Empty;
     public string? Content { get; set; } = null;

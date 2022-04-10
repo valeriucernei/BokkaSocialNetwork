@@ -2,7 +2,7 @@ using Common.Enums;
 
 namespace Domain.Models;
 
-public class Invoice : EntityBase
+public sealed class Invoice : BaseEntity
 {
     public int Amount { get; set; } = 0;
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
