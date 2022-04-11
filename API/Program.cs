@@ -6,6 +6,7 @@ using BL.Services;
 using DataAccess;
 using DataAccess.Interfaces;
 using DataAccess.Repositories;
+using Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,18 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(configuration.GetConnectionString(nameof(Context))));
 
 // For Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<User, Role>(options => {
+        options.Password.RequiredLength = 8;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequiredUniqueChars = 0;
+        options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.";
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddRoles<Role>()
+    .AddRoleManager<RoleManager<Role>>()
     .AddEntityFrameworkStores<Context>()
     .AddDefaultTokenProviders();
 

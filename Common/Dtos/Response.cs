@@ -1,4 +1,4 @@
-namespace Domain.Models.Auth;
+namespace Common.Dtos;
 
 public class Response
 {

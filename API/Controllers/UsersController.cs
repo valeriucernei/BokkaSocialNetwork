@@ -1,20 +1,22 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Domain.Models.Auth;
+using Common.Dtos;
+using Common.Dtos.Account;
+using Common.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers;
 
-public class AuthenticateController : BaseController
+public class UsersController : BaseController
 {
     private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AuthenticateController(
+        public UsersController(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration)
@@ -26,7 +28,7 @@ public class AuthenticateController : BaseController
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto model)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
 
@@ -59,7 +61,7 @@ public class AuthenticateController : BaseController
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
 
@@ -102,7 +104,7 @@ public class AuthenticateController : BaseController
 
         [HttpPost]
         [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] UserRegisterDto model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
 

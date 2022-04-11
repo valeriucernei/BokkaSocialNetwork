@@ -1,23 +1,24 @@
-using Domain.Models;
+using Domain.Models.Auth;
+using Microsoft.AspNetCore.Identity;
 
 namespace DataAccess.Seeds;
 
 public static class UsersSeed
 {
-    public static async Task Seed(Context context)
+    public static async Task Seed(UserManager<User> userManager)
     {
-        if (!context.Users.Any())
+        if (!userManager.Users.Any())
         {
             var user = new User
             {
-                Auth0UserId = "test", 
-                FirstName = "Test", 
+                Id = Guid.NewGuid().ToString(),
+                UserName = "test",
+                Email = "test@gmail.com",
+                FirstName = "Test",
                 LastName = "User"
             };
 
-            await context.Users.AddAsync(user);
-
-            await context.SaveChangesAsync();
+            await userManager.CreateAsync(user, "Asd12345");
         }
     }
 }

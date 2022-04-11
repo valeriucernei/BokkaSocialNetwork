@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Domain.Models.Auth;
 
 namespace Domain.Models;
 
@@ -10,7 +11,7 @@ public sealed class Post : BaseEntity
     
     public ICollection<Photo> Photos { get; set; } = new Collection<Photo>();
     public ICollection<Like> Likes { get; set; } = new Collection<Like>();
-
-    public Guid UserId { get; set; } = Guid.Empty;
+    
+    public string UserId { get; set; } = String.Empty;
     public User User { get; set; } = new User();
 }

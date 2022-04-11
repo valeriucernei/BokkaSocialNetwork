@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain;
 
-public class BaseEntity
+public class BaseEntity : IBaseEntity
 {
     [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public byte[]? RowVersion { get; set; }
 }

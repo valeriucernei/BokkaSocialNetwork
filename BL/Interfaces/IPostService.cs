@@ -7,11 +7,11 @@ public interface IPostService
 {
     Task<PaginatedResult<PostListDto>> GetPagedPosts(PagedRequest pagedRequest);
 
-    Task<PostDto> GetPost(Guid id);
+    Task<PostDto> GetPost(string id);
 
     Task<PostDto> CreatePost(PostForUpdateDto postForUpdateDto);
 
-    Task UpdatePost(Guid id, PostForUpdateDto postDto);
+    Task UpdatePost(string id, PostForUpdateDto postDto);
 
-    Task DeletePost(Guid id);
+    Task DeletePost(string id);
 }

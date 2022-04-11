@@ -1,4 +1,4 @@
-namespace Domain.Models.Auth;
+namespace Common.Enums;
 
 public static class UserRoles
 {

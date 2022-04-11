@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Route("posts/[controller]")]
 public class PostsController : BaseController
 {
     private readonly IPostService _postService;
@@ -21,13 +20,13 @@ public class PostsController : BaseController
         return await _postService.GetPagedPosts(pagedRequest);
     }
     
-    [HttpGet("{id}")]
-    public async Task<PostDto> GetPost(Guid id)
+    [HttpGet("post/{id}")]
+    public async Task<PostDto> GetPost(string id)
     {
         return await _postService.GetPost(id);
     }
     
-    [HttpPost]
+    [HttpPost("add")]
     public async Task<IActionResult> CreatePost(PostForUpdateDto postForUpdateDto)
     {
         if (!ModelState.IsValid)
@@ -39,8 +38,8 @@ public class PostsController : BaseController
         return CreatedAtAction(nameof(GetPost), new { id = postDto.Id }, postDto);
     }
     
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePost(Guid id, PostForUpdateDto postDto)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdatePost(string id, PostForUpdateDto postDto)
     {
         if (!ModelState.IsValid)
         {
@@ -51,8 +50,8 @@ public class PostsController : BaseController
         return Ok();
     }
     
-    [HttpDelete("{id}")]
-    public async Task DeletePost(Guid id)
+    [HttpDelete("delete{id}")]
+    public async Task DeletePost(string id)
     {
         await _postService.DeletePost(id);
     }

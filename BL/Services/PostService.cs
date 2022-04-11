@@ -25,7 +25,7 @@ public class PostService : IPostService
         return pagedPostsDto;
     }
 
-    public async Task<PostDto> GetPost(Guid id)
+    public async Task<PostDto> GetPost(string id)
     {
         var post = await _repository.GetByIdWithInclude<Post>(id, post => post.User);
         // checks...
@@ -42,7 +42,7 @@ public class PostService : IPostService
         return _mapper.Map<PostDto>(post);
     }
 
-    public async Task UpdatePost(Guid id, PostForUpdateDto postDto)
+    public async Task UpdatePost(string id, PostForUpdateDto postDto)
     {
         var post = await _repository.GetById<Post>(id);
         
@@ -50,7 +50,7 @@ public class PostService : IPostService
         await _repository.SaveChangesAsync();
     }
 
-    public async Task DeletePost(Guid id)
+    public async Task DeletePost(string id)
     {
         await _repository.Delete<Post>(id);
         await _repository.SaveChangesAsync();
