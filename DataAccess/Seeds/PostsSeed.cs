@@ -5,10 +5,12 @@ namespace DataAccess.Seeds;
 
 public static class PostsSeed
 {
-    public static async Task Seed(Context context, User user)
+    public static async Task Seed(Context context)
     {
         if (!context.Posts.Any())
         {
+            var user = context.Users.First(publisher => publisher.UserName == "test");
+            
             var post1 = new Post
             {
                 Title = "First Post!",

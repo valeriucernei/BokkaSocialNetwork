@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Models.Auth;
+namespace BL.Models.Dtos.User;
 
-public class LoginModel
+public class UserLoginDto
 {
     [Required(ErrorMessage = "Username is required")]
     public string? Username { get; set; }

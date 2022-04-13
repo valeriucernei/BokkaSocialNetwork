@@ -6,9 +6,9 @@ public sealed class Like : BaseEntity
 {
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     
-    public string PostId { get; set; } = String.Empty;
+    public Guid PostId { get; set; } = Guid.Empty;
     public Post Post { get; set; } = new Post();
     
-    public string UserId { get; set; } = String.Empty;
+    public Guid UserId { get; set; } = Guid.Empty;
     public User User { get; set; } = new User();
 }

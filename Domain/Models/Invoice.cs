@@ -9,6 +9,6 @@ public sealed class Invoice : BaseEntity
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
     
-    public string UserId { get; set; } = String.Empty;
+    public Guid UserId { get; set; } = Guid.Empty;
     public User User { get; set; } = new User();
 }

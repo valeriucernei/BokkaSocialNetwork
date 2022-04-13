@@ -10,7 +10,6 @@ public static class HostExtensions
     public static async Task SeedData(this IHost host)
     {
         using var scope = host.Services.CreateScope();
-        
         var services = scope.ServiceProvider;
         
         try
@@ -18,8 +17,8 @@ public static class HostExtensions
             var context = services.GetRequiredService<Context>();
             var userManager = services.GetRequiredService<UserManager<User>>();
 
-            //await UsersSeed.Seed(userManager);
-            //await PostsSeed.Seed(context);
+            await UsersSeed.Seed(userManager);
+            await PostsSeed.Seed(context);
         }
         catch (Exception ex)
         {

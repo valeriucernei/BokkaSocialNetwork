@@ -7,6 +7,6 @@ public sealed class Subscription : BaseEntity
     public DateTime StartDateTime { get; set; } = DateTime.Now;
     public DateTime EndDateTime { get; set; } = DateTime.Now;
     
-    public string UserId { get; set; } = String.Empty;
+    public Guid UserId { get; set; } = Guid.Empty;
     public User User { get; set; } = new User();
 }

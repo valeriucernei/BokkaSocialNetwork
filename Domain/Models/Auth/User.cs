@@ -18,4 +18,14 @@ public class User : IdentityUser<Guid>, IBaseEntity
     public ICollection<Like> Likes { get; set; } = new Collection<Like>();
     public ICollection<Subscription> Subscriptions { get; set; } = new Collection<Subscription>();
     public ICollection<Invoice> Invoices { get; set; } = new Collection<Invoice>();
+
+    public override string ToString()
+    {
+        return $"***User Info***" +
+               $"\n- ID: {Id.ToString()}" +
+               $"\n- FirstName: {FirstName}" +
+               $"\n- LastName: {LastName}" +
+               $"\n- Email: {Email}" +
+               $"\n- RegisterDateTime: {RegisterDateTime}";
+    }
 }

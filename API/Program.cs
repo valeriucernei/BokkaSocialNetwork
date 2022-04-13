@@ -1,4 +1,8 @@
+using System.Reflection;
 using System.Text;
+using BL;
+using BL.Interfaces;
+using BL.Services;
 using DataAccess;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 
 // For Entity Framework
@@ -57,6 +61,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(BlAssemblyMarker));
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
