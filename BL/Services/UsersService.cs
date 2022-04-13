@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using BL.Interfaces;
-using BL.Models.Dtos.User;
+using Common.Dtos.User;
 using Common.Exceptions;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;

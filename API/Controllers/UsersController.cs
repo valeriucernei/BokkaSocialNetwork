@@ -1,5 +1,5 @@
 using BL.Interfaces;
-using BL.Models.Dtos.User;
+using Common.Dtos.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

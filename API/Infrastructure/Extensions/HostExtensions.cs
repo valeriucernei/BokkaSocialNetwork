@@ -18,7 +18,7 @@ public static class HostExtensions
             var userManager = services.GetRequiredService<UserManager<User>>();
 
             await UsersSeed.Seed(userManager);
-            await PostsSeed.Seed(context);
+            await PostsSeed.Seed(context); 
         }
         catch (Exception ex)
         {

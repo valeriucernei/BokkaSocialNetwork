@@ -1,5 +1,5 @@
 using AutoMapper;
-using BL.Models.Dtos.User;
+using Common.Dtos.User;
 using Domain.Models.Auth;
 
 namespace BL.Profiles;

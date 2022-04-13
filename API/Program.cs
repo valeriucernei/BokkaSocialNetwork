@@ -1,9 +1,11 @@
-using System.Reflection;
 using System.Text;
+using API.Infrastructure.Extensions;
 using BL;
 using BL.Interfaces;
 using BL.Services;
 using DataAccess;
+using DataAccess.Interfaces;
+using DataAccess.Repositories;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +15,10 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IRepository, Repository>();
+
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IPostsService, PostsService>();
 
 
 // For Entity Framework
@@ -67,6 +72,8 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+await app.SeedData();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -82,4 +89,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

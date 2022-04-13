@@ -1,4 +1,4 @@
-namespace BL.Models.Dtos.User;
+namespace Common.Dtos.User;
 
 public class UserRegisterResponseDto
 {

@@ -25,20 +25,20 @@ public class Repository : IRepository
         return await _context.Set<TEntity>().ToListAsync();
     }
 
-    public async Task<TEntity> GetById<TEntity>(string id) where TEntity : BaseEntity
+    public async Task<TEntity> GetById<TEntity>(Guid id) where TEntity : BaseEntity
     {
         return (await _context.FindAsync<TEntity>(id))!;
     }
 
     public async Task<TEntity> GetByIdWithInclude<TEntity>
     (
-        string id, 
+        Guid id, 
         params Expression<Func<TEntity, object>>[] includeProperties
     ) 
         where TEntity : BaseEntity
     {
         var query = IncludeProperties(includeProperties);
-        return (await query.FirstOrDefaultAsync(entity => entity.Id.ToString() == id))!;
+        return (await query.FirstOrDefaultAsync(entity => entity.Id == id))!;
     }
 
     public async void Add<TEntity>(TEntity entity) where TEntity : BaseEntity
@@ -46,13 +46,13 @@ public class Repository : IRepository
         await _context.Set<TEntity>().AddAsync(entity);
     }
 
-    public async Task<TEntity> Delete<TEntity>(string id) where TEntity : BaseEntity
+    public async Task<TEntity> Delete<TEntity>(Guid id) where TEntity : BaseEntity
     {
         var entity = await _context.Set<TEntity>().FindAsync(id);
         
         if (entity is null)
         {
-            throw new ValidationException($"Object of type {typeof(TEntity)} with id { id } not found");
+            throw new ValidationException($"Object of type {typeof(TEntity)} with id { id.ToString() } not found");
         }
 
         _context.Set<TEntity>().Remove(entity);
