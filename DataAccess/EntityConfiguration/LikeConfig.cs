@@ -20,8 +20,5 @@ public class LikeConfig : IEntityTypeConfiguration<Like>
         builder.HasOne(l => l.User)
             .WithMany(u => u.Likes)
             .OnDelete(DeleteBehavior.NoAction);
-        
-        builder.Property(l => l.RowVersion)
-            .IsRowVersion();
     }
 }

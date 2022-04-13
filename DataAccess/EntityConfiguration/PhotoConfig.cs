@@ -15,7 +15,7 @@ public class PhotoConfig : IEntityTypeConfiguration<Photo>
         builder.Property(p => p.PostId)
             .IsRequired();
         
-        builder.Property(p => p.RowVersion)
-            .IsRowVersion();
+        builder.Property(p => p.Extension)
+            .IsRequired();
     }
 }

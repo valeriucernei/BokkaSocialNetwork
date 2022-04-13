@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Models.Auth
+namespace Domain.Models.Auth;
+
+public class Role : IdentityRole<Guid>
 {
-    public class Role : IdentityRole<string>
-    {
-        public Role(string roleName) : base(roleName) { }
-        public Role() : base() { }
-    }
+    public Role(string roleName) : base(roleName) { }
+    public Role() { }
 }

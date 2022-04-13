@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class Context : IdentityDbContext<User, Role, string, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
+public class Context : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
 {
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Like> Likes => Set<Like>();
@@ -26,7 +26,7 @@ public class Context : IdentityDbContext<User, Role, string, UserClaim, UserRole
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Context).Assembly);
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Context).Assembly); //.Seed()
     }
 }

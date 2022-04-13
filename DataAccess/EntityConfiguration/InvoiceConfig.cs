@@ -19,8 +19,5 @@ public class InvoiceConfig : IEntityTypeConfiguration<Invoice>
         
         builder.Property(i => i.UserId)
             .IsRequired();
-        
-        builder.Property(i => i.RowVersion)
-            .IsRowVersion();
     }
 }

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Models.Auth
+namespace Domain.Models.Auth;
+
+public class UserToken : IdentityUserToken<Guid>
 {
-    public class UserToken : IdentityUserToken<string>
-    {
-    }
+    
 }

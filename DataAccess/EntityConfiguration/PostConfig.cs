@@ -19,8 +19,5 @@ public class PostConfig : IEntityTypeConfiguration<Post>
         
         builder.Property(p => p.UserId)
             .IsRequired();
-        
-        builder.Property(p => p.RowVersion)
-            .IsRowVersion();
     }
 }

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Models.Auth
+namespace Domain.Models.Auth;
+
+public class RoleClaim: IdentityRoleClaim<Guid>
 {
-    public class RoleClaim : IdentityRoleClaim<string>
-    {
-    }
+    
 }

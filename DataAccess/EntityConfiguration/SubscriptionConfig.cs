@@ -14,7 +14,7 @@ public class SubscriptionConfig : IEntityTypeConfiguration<Subscription>
         builder.Property(s => s.EndDateTime)
             .IsRequired();
         
-        builder.Property(s => s.RowVersion)
-            .IsRowVersion();
+        builder.Property(s => s.UserId)
+            .IsRequired();
     }
 }
