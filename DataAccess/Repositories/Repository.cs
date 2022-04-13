@@ -38,7 +38,7 @@ public class Repository : IRepository
         where TEntity : BaseEntity
     {
         var query = IncludeProperties(includeProperties);
-        return (await query.FirstOrDefaultAsync(entity => entity.Id == id))!;
+        return (await query.FirstOrDefaultAsync(entity => entity.Id.ToString() == id))!;
     }
 
     public async void Add<TEntity>(TEntity entity) where TEntity : BaseEntity
