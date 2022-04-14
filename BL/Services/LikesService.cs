@@ -17,21 +17,18 @@ public class LikesService : ILikesService
     private readonly IRepository _repository;
     private readonly ILikesRepository _likesRepository;
     private readonly IUsersService _usersService;
-    private readonly IPostsService _postsService;
     private readonly UserManager<User> _userManager;
 
     public LikesService(IMapper mapper, 
         IRepository repository, 
         ILikesRepository likesRepository, 
         IUsersService usersService, 
-        IPostsService postsService,
         UserManager<User> userManager)
     {
         _mapper = mapper;
         _repository = repository;
         _likesRepository = likesRepository;
         _usersService = usersService;
-        _postsService = postsService;
         _userManager = userManager;
     }
 

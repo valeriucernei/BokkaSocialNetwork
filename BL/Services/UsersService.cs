@@ -5,6 +5,8 @@ using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.User;
 using Common.Exceptions;
+using Common.Models;
+using DataAccess.Interfaces;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -18,17 +20,40 @@ public class UsersService : IUsersService
     private readonly RoleManager<Role> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
-    
+    private readonly IRepository _repository;
+    private readonly SignInManager<User> _signInManager;
+
     public UsersService(
         UserManager<User> userManager,
         RoleManager<Role> roleManager,
         IConfiguration configuration,
-        IMapper mapper)
+        IMapper mapper,
+        IRepository repository,
+        SignInManager<User> signInManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
         _mapper = mapper;
+        _repository = repository;
+        _signInManager = signInManager;
+    }
+
+    public async Task<UserDto> GetUser(ClaimsPrincipal userClaims)
+    {
+        var user = await this.GetUserByClaims(userClaims);
+        
+        return _mapper.Map<UserDto>(user);
+    }
+    
+    public async Task<UserDto> GetUser(Guid id)
+    {
+        var user = await _userManager.FindByIdAsync(id.ToString());
+
+        if (user is null)
+            throw new NotFoundException("There is no user with such Id.");
+
+        return _mapper.Map<UserDto>(user);
     }
     
     public async Task<UserLoginResponseDto> Login(UserLoginDto model)
@@ -136,8 +161,49 @@ public class UsersService : IUsersService
         return token;
     }
 
-    public async Task<User> GetUserByClaims(ClaimsPrincipal user)
+    public async Task<User> GetUserByClaims(ClaimsPrincipal userClaims)
     {
-        return await _userManager.FindByIdAsync(user.FindFirstValue(ClaimTypes.Sid));
+        return await _userManager.FindByIdAsync(userClaims.FindFirstValue(ClaimTypes.Sid));
+    }
+
+    public async Task<UserRegisterDto> UpdateUser(UserRegisterDto model, ClaimsPrincipal userClaims)
+    {
+        var userExists = await _userManager.FindByNameAsync(model.Username);
+        if (userExists != null)
+            throw new RegisterFormException("This username is already taken.");
+        
+        if (model.Username is {Length: < 5})
+            throw new RegisterFormException("Username is too short.");
+
+        if (model.FirstName is {Length: < 3})
+            throw new RegisterFormException("First Name is too short.");
+
+        var user = GetUserByClaims(userClaims).Result;
+        
+        _mapper.Map(model, user);
+        
+        await _repository.SaveChangesAsync();
+
+        return _mapper.Map<UserRegisterDto>(user);
+    }
+    
+    public async Task LogOut()
+    {
+        await _signInManager.SignOutAsync();
+    }
+    
+    public async Task<Response> DeleteUser(ClaimsPrincipal userClaims)
+    {
+        var user = GetUserByClaims(userClaims).Result;
+
+        var result = await _userManager.DeleteAsync(user);
+        
+        if(result.Succeeded)
+            return new Response()
+            {
+                Message = "Your account has been deleted successfully."
+            };
+
+        throw new Exception("An error occured.");
     }
 }

@@ -4,10 +4,12 @@ using Domain.Models.Auth;
 
 namespace BL.Profiles;
 
-public class UserRegisterProfile : Profile
+public class UserProfile : Profile
 {
-    public UserRegisterProfile()
+    public UserProfile()
     {
         CreateMap<UserRegisterDto, User>();
+        CreateMap<User, UserRegisterDto>();
+        CreateMap<User, UserDto>();
     }
 }

@@ -80,20 +80,21 @@ builder.Services.AddSwaggerGen(c =>
             Description = "Bearer Authentication with JWT Token",
             Type = SecuritySchemeType.Http
         });
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Id = "Bearer",
-                        Type = ReferenceType.SecurityScheme
-                    }
-                },
-                new List<string>()
-            }
-        });
+        c.OperationFilter<AuthResponsesOperationFilter>();
+        // c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        // {
+        //     {
+        //         new OpenApiSecurityScheme
+        //         {
+        //             Reference = new OpenApiReference
+        //             {
+        //                 Id = "Bearer",
+        //                 Type = ReferenceType.SecurityScheme
+        //             }
+        //         },
+        //         new List<string>()
+        //     }
+        // });
     });
 
 builder.Services.AddAutoMapper(typeof(BlAssemblyMarker));

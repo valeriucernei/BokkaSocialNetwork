@@ -9,6 +9,7 @@ using DataAccess.Interfaces;
 using Domain.Models;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BL.Services;
 
@@ -132,6 +133,17 @@ public class PostsService : IPostsService
         {
             Message = "You have successfully deleted this post."
         };
+    }
+
+    public async Task DeleteAllUserPosts(ClaimsPrincipal userClaims)
+    {
+        var user = _usersService.GetUserByClaims(userClaims).Result;
+        var posts = GetUsersPosts(user.Id).Result;
+
+        foreach (var post in posts)
+        {
+            await DeletePost(post.Id, userClaims);
+        }
     }
 
     private static bool IsUsersPost(User user, Post post)
