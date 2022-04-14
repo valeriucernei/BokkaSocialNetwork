@@ -134,4 +134,9 @@ public class UsersService : IUsersService
 
         return token;
     }
+
+    public async Task<User> GetUserByClaims(ClaimsPrincipal user)
+    {
+        return await _userManager.FindByIdAsync(user.FindFirstValue(ClaimTypes.Sid));
+    }
 }

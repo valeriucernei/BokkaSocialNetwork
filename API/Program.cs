@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IPostsRepository, PostsRepository>();
 
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
@@ -67,7 +68,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "ELibrary.Web.API", Version = "v1" });
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Social Network API", Version = "v1.0.0" });
         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
             Scheme = "Bearer",
