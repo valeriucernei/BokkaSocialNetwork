@@ -54,7 +54,7 @@ public class PostsController : ControllerBase
     }
     
     [HttpPut("update/{id:guid}")]
-    public async Task<IActionResult> UpdateBook(Guid id, PostForUpdateDto postForUpdateDto)
+    public async Task<IActionResult> UpdatePost(Guid id, PostForUpdateDto postForUpdateDto)
     {
         if (!ModelState.IsValid)
         {
@@ -67,7 +67,7 @@ public class PostsController : ControllerBase
     }
     
     [HttpDelete("delete/{id}")]
-    public async Task<Response> DeleteBook(Guid id)
+    public async Task<Response> DeletePost(Guid id)
     {
         return await _postsService.DeletePost(id, User);
     }

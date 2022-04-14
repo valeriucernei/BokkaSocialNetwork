@@ -18,9 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IPostsRepository, PostsRepository>();
+builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
+builder.Services.AddScoped<ILikesService, LikesService>();
 
 // For Entity Framework
 builder.Services.AddDbContext<Context>(options =>

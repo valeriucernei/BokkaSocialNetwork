@@ -11,4 +11,13 @@ public sealed class Like : BaseEntity
     
     public Guid UserId { get; set; } = Guid.Empty;
     public User User { get; set; } = new User();
+
+    public override string ToString()
+    {
+        return $"*** Like Info ***" +
+               $"\n- Id: {Id}" +
+               $"\n- CreatedDateTime: {CreatedDateTime}" +
+               $"\n- PostId: {PostId}" +
+               $"\n- UserId: {UserId}";
+    }
 }

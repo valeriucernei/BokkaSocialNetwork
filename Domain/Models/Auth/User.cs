@@ -8,7 +8,7 @@ public class User : IdentityUser<Guid>, IBaseEntity
     public override Guid Id { get; set; }
     
     public string FirstName { get; set; } = String.Empty;
-    public string? LastName { get; set; } = null;
+    public string? LastName { get; set; }
     
     public override string? Email { get; set; }
     
@@ -23,6 +23,7 @@ public class User : IdentityUser<Guid>, IBaseEntity
     {
         return $"***User Info***" +
                $"\n- ID: {Id.ToString()}" +
+               $"\n- UserName: {UserName}" +
                $"\n- FirstName: {FirstName}" +
                $"\n- LastName: {LastName}" +
                $"\n- Email: {Email}" +

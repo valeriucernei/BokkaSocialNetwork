@@ -59,8 +59,9 @@ public class UsersService : IUsersService
 
         return new UserLoginResponseDto
         {
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
-            ValidTo = token.ValidTo
+            token_type = "Bearer",
+            access_token = new JwtSecurityTokenHandler().WriteToken(token),
+            expires_at = token.ValidTo
         };
     }
 
