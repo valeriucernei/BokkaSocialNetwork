@@ -10,6 +10,8 @@ public interface IRepository
     
     Task<TEntity> GetById<TEntity>(Guid id) where TEntity : BaseEntity;
 
+    Task<bool> ExistsById<TEntity>(Guid id) where TEntity : BaseEntity;
+
     Task<TEntity> GetByIdWithInclude<TEntity>(Guid id, params Expression<Func<TEntity, object>>[] includeProperties) 
         where TEntity : BaseEntity;
 

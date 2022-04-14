@@ -15,22 +15,19 @@ public class UsersController: ControllerBase
         _usersService = usersService;
     }
     
-    [HttpPost]
-    [Route("login")]
+    [HttpPost("login")]
     public async Task<UserLoginResponseDto> Login([FromBody] UserLoginDto model)
     {
         return await _usersService.Login(model);
     }
     
-    [HttpPost]
-    [Route("register")]
+    [HttpPost("register")]
     public async Task<UserRegisterResponseDto> Register([FromBody] UserRegisterDto model)
     {
         return await _usersService.Register(model);
     }
     
-    [HttpPost]
-    [Route("register-admin")]
+    [HttpPost("register-admin")]
     public async Task<UserRegisterResponseDto> RegisterAdmin([FromBody] UserRegisterDto model)
     {
         return await _usersService.RegisterAdmin(model);

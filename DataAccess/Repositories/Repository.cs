@@ -30,6 +30,16 @@ public class Repository : IRepository
         return (await _context.FindAsync<TEntity>(id))!;
     }
 
+    public async Task<bool> ExistsById<TEntity>(Guid id) where TEntity : BaseEntity
+    {
+        var res = await _context.FindAsync<TEntity>(id);
+
+        if (res is null)
+            return false;
+
+        return true;
+    }
+
     public async Task<TEntity> GetByIdWithInclude<TEntity>
     (
         Guid id, 

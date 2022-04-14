@@ -11,5 +11,10 @@ public class PostProfile : Profile
         CreateMap<Post, PostListDto>()
             .ForMember(x => x.User, y => y.MapFrom(z => z.User.FirstName + " " + z.User.LastName))
             .ForMember(x => x.LikesCount, y => y.MapFrom(z => z.Likes.Count));
+
+        CreateMap<Post, PostDto>()
+            .ForMember(x => x.LikesCount, y => y.MapFrom(z => z.Likes.Count));
+
+        CreateMap<PostForUpdateDto, Post>();
     }
 }
