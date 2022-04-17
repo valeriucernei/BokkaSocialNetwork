@@ -1,6 +1,6 @@
 using BL.Interfaces;
 using Common.Dtos.User;
-using Common.Models;
+using Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,29 +26,43 @@ public class UsersController: ControllerBase
     
     [AllowAnonymous]
     [HttpGet("user/{id:guid}")]
-    public async Task<UserDto> GetUser(Guid id)
+    public async Task<IActionResult> GetUser(Guid id)
     {
-        return await _usersService.GetUser(id);
+        var result = await _usersService.GetUser(id);
+
+        if (result is null)
+            return NotFound("There is no user with such Id.");
+
+        return Ok(result);
     }
     
     [AllowAnonymous]
+    [ApiExceptionFilter]
     [HttpPost("login")]
-    public async Task<UserLoginResponseDto> Login([FromBody] UserLoginDto model)
+    public async Task<IActionResult> Login([FromBody] UserLoginDto model)
     {
-        return await _usersService.Login(model);
+        var result = await _usersService.Login(model);
+
+        return Ok(result);
     }
     
     [AllowAnonymous]
+    [ApiExceptionFilter]
     [HttpPost("register")]
-    public async Task<UserRegisterResponseDto> Register([FromBody] UserRegisterDto model)
+    public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
     {
-        return await _usersService.Register(model);
+        var result = await _usersService.Register(model);
+        
+        return Ok(result);
     }
     
+    [ApiExceptionFilter]
     [HttpPost("register-admin")]
-    public async Task<UserRegisterResponseDto> RegisterAdmin([FromBody] UserRegisterDto model)
+    public async Task<IActionResult> RegisterAdmin([FromBody] UserRegisterDto model)
     {
-        return await _usersService.RegisterAdmin(model);
+        var result = await _usersService.RegisterAdmin(model);
+
+        return Ok(result);
     }
     
     [HttpPost("logout")]
@@ -58,15 +72,20 @@ public class UsersController: ControllerBase
         return Ok(new {});
     }
     
+    [ApiExceptionFilter]
     [HttpPut("update")]
-    public async Task<UserRegisterDto> Update([FromBody] UserRegisterDto model)
+    public async Task<IActionResult> Update([FromBody] UserRegisterDto model)
     {
-        return await _usersService.UpdateUser(model, User);
+        var result = await _usersService.UpdateUser(model, User);
+
+        return Ok(result);
     }
 
     [HttpDelete("delete")]
-    public async Task<Response> Delete()
+    public async Task<IActionResult> Delete()
     {
-        return await _usersService.DeleteUser(User);
+        var result = await _usersService.DeleteUser(User);
+
+        return Ok(result);
     }
 }

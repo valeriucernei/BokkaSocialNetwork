@@ -46,12 +46,9 @@ public class UsersService : IUsersService
         return _mapper.Map<UserDto>(user);
     }
     
-    public async Task<UserDto> GetUser(Guid id)
+    public async Task<UserDto?> GetUser(Guid id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
-
-        if (user is null)
-            throw new NotFoundException("There is no user with such Id.");
 
         return _mapper.Map<UserDto>(user);
     }
@@ -93,21 +90,18 @@ public class UsersService : IUsersService
     public async Task<UserRegisterResponseDto> Register(UserRegisterDto model)
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
-        if (userExists != null)
-            throw new RegisterFormException("This username is already taken.");
         
-        if (model.Username is {Length: < 5})
-            throw new RegisterFormException("Username is too short.");
+        if (userExists is not null)
+            throw new EntryAlreadyExists("This UserName already exists.");
 
-        if (model.FirstName is {Length: < 3})
-            throw new RegisterFormException("First Name is too short.");
+        var emailExists = await _userManager.FindByEmailAsync(model.Email);
+        
+        if (emailExists is not null)
+            throw new EntryAlreadyExists("This Email already exists.");
 
         User user = _mapper.Map<User>(model);
         
-        var result = await _userManager.CreateAsync(user, model.Password);
-
-        if (!result.Succeeded)
-            throw new RegisterFormException("Something went wrong. Please, try again.");
+        await _userManager.CreateAsync(user, model.Password);
 
         return new UserRegisterResponseDto
         {
@@ -118,15 +112,18 @@ public class UsersService : IUsersService
     public async Task<UserRegisterResponseDto> RegisterAdmin(UserRegisterDto model)
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
-        if (userExists != null)
-            throw new RegisterFormException("This username is already taken.");
+        
+        if (userExists is not null)
+            throw new EntryAlreadyExists("This UserName already exists.");
+
+        var emailExists = await _userManager.FindByEmailAsync(model.Email);
+        
+        if (emailExists is not null)
+            throw new EntryAlreadyExists("This Email already exists.");
 
         User user = _mapper.Map<User>(model);
         
-        var result = await _userManager.CreateAsync(user, model.Password);
-        
-        if (!result.Succeeded)
-            throw new RegisterFormException("Something went wrong. Please, try again.");
+        await _userManager.CreateAsync(user, model.Password);
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
             await _roleManager.CreateAsync(new Role(UserRoles.Admin));
@@ -169,14 +166,14 @@ public class UsersService : IUsersService
     public async Task<UserRegisterDto> UpdateUser(UserRegisterDto model, ClaimsPrincipal userClaims)
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
-        if (userExists != null)
-            throw new RegisterFormException("This username is already taken.");
         
-        if (model.Username is {Length: < 5})
-            throw new RegisterFormException("Username is too short.");
+        if (userExists is not null)
+            throw new EntryAlreadyExists("This UserName already exists.");
 
-        if (model.FirstName is {Length: < 3})
-            throw new RegisterFormException("First Name is too short.");
+        var emailExists = await _userManager.FindByEmailAsync(model.Email);
+        
+        if (emailExists is not null)
+            throw new EntryAlreadyExists("This Email already exists.");
 
         var user = GetUserByClaims(userClaims).Result;
         
