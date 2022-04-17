@@ -74,11 +74,28 @@ public class UsersController: ControllerBase
     
     [ApiExceptionFilter]
     [HttpPut("update")]
-    public async Task<IActionResult> Update([FromBody] UserRegisterDto model)
+    public async Task<IActionResult> Update([FromBody] UserUpdateDto model)
     {
-        var result = await _usersService.UpdateUser(model, User);
+        var user = await _usersService.UpdateUser(model, User);
 
+        if (user.Errors.Any())
+            return BadRequest(user.Errors);
+
+        var result = await _usersService.GetUser(User);
+        
         return Ok(result);
+    }
+    
+    [ApiExceptionFilter]
+    [HttpPut("update-password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UserUpdatePasswordDto model)
+    {
+        var user = await _usersService.UpdateUserPassword(model, User);
+
+        if (user.Errors.Any())
+            return BadRequest(user.Errors);
+
+        return Ok(user);
     }
 
     [HttpDelete("delete")]

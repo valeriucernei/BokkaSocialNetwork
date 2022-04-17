@@ -163,25 +163,24 @@ public class UsersService : IUsersService
         return await _userManager.FindByIdAsync(userClaims.FindFirstValue(ClaimTypes.Sid));
     }
 
-    public async Task<UserRegisterDto> UpdateUser(UserRegisterDto model, ClaimsPrincipal userClaims)
+    public async Task<IdentityResult> UpdateUser(UserUpdateDto model, ClaimsPrincipal userClaims)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username);
-        
-        if (userExists is not null)
-            throw new EntryAlreadyExists("This UserName already exists.");
-
-        var emailExists = await _userManager.FindByEmailAsync(model.Email);
-        
-        if (emailExists is not null)
-            throw new EntryAlreadyExists("This Email already exists.");
-
         var user = GetUserByClaims(userClaims).Result;
         
         _mapper.Map(model, user);
-        
-        await _repository.SaveChangesAsync();
 
-        return _mapper.Map<UserRegisterDto>(user);
+        var result = await _userManager.UpdateAsync(user);
+
+        return result;
+    }
+
+    public async Task<IdentityResult> UpdateUserPassword(UserUpdatePasswordDto model, ClaimsPrincipal userClaims)
+    {
+        var user = GetUserByClaims(userClaims).Result;
+        
+        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+        return result;
     }
     
     public async Task LogOut()

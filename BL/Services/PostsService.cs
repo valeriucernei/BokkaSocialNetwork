@@ -2,12 +2,10 @@ using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Post;
-using Common.Exceptions;
 using Common.Models;
 using Common.Models.PagedRequest;
 using DataAccess.Interfaces;
 using Domain.Models;
-using Domain.Models.Auth;
 
 namespace BL.Services;
 
@@ -46,12 +44,6 @@ public class PostsService : IPostsService
     
     public async Task<PaginatedResult<PostListDto>> GetPagedPosts(PagedRequest pagedRequest)
     {
-        if (pagedRequest.PageIndex < 0)
-            throw new ArgumentException("Page index can't lower than 0.");
-
-        if (pagedRequest.PageSize is < 0 or > 50)
-            throw new ArgumentException("Page size out of bounds (0 and 50).");
-
         return await _repository.GetPagedData<Post, PostListDto>(pagedRequest);
     }
     
@@ -81,14 +73,6 @@ public class PostsService : IPostsService
     
     public async Task<Response> DeletePost(Guid id, ClaimsPrincipal userClaims)
     {
-        if (!_repository.ExistsById<Post>(id).Result)
-            throw new NotFoundException("There is no post with such Id.");
-        
-        var post = await _repository.GetById<Post>(id);
-        
-        if (!IsUsersPost(_usersService.GetUserByClaims(userClaims).Result, post))
-            throw new ForbiddenException("You are not allowed to delete this post.");
-        
         await _repository.Delete<Post>(id);
         await _repository.SaveChangesAsync();
 
@@ -96,21 +80,5 @@ public class PostsService : IPostsService
         {
             Message = "You have successfully deleted this post."
         };
-    }
-
-    // public async Task DeleteAllUserPosts(ClaimsPrincipal userClaims)
-    // {
-    //     var user = _usersService.GetUserByClaims(userClaims).Result;
-    //     var posts = GetUsersPosts(user.Id).Result;
-    //
-    //     foreach (var post in posts)
-    //     {
-    //         await DeletePost(post.Id, userClaims);
-    //     }
-    // }
-
-    private static bool IsUsersPost(User user, Post post)
-    {
-        return user.Id == post.UserId;
     }
 }

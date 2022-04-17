@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Common.Dtos.User;
 using Common.Models;
 using Domain.Models.Auth;
+using Microsoft.AspNetCore.Identity;
 
 namespace BL.Interfaces;
 
@@ -13,7 +14,8 @@ public interface IUsersService
     Task<UserRegisterResponseDto> Register(UserRegisterDto model);
     Task<UserRegisterResponseDto> RegisterAdmin(UserRegisterDto model);
     Task<User> GetUserByClaims(ClaimsPrincipal user);
-    Task<UserRegisterDto> UpdateUser(UserRegisterDto model, ClaimsPrincipal userClaims);
+    Task<IdentityResult> UpdateUser(UserUpdateDto model, ClaimsPrincipal userClaims);
     Task LogOut();
     Task<Response> DeleteUser(ClaimsPrincipal userClaims);
+    Task<IdentityResult> UpdateUserPassword(UserUpdatePasswordDto model, ClaimsPrincipal userClaims);
 }
