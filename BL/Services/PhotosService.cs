@@ -22,7 +22,7 @@ public class PhotosService : IPhotosService
     
     public async Task<List<PhotoDto>> GetPhotosByPostId(Guid postId)
     {
-        var photos = await _photosRepository.GetPhotosByPhotoId(postId);
+        var photos = await _photosRepository.GetPhotosByPostId(postId);
 
         return _mapper.Map<List<PhotoDto>>(photos);
     }

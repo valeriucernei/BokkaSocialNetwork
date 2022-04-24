@@ -13,7 +13,7 @@ public class PhotosRepository : IPhotosRepository
         _context = context;
     }
     
-    public async Task<List<Photo>> GetPhotosByPhotoId(Guid id)
+    public async Task<List<Photo>> GetPhotosByPostId(Guid id)
     {
         return await _context.Photos
             .Where(p => p.PostId == id)
