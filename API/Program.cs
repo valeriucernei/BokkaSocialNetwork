@@ -19,10 +19,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IPostsRepository, PostsRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
+builder.Services.AddScoped<IPhotosRepository, PhotosRepository>();
 
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<ILikesService, LikesService>();
+builder.Services.AddScoped<IPhotosService, PhotosService>();
 
 // For Entity Framework
 builder.Services.AddDbContext<Context>(options =>
@@ -81,20 +83,6 @@ builder.Services.AddSwaggerGen(c =>
             Type = SecuritySchemeType.Http
         });
         c.OperationFilter<AuthResponsesOperationFilter>();
-        // c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        // {
-        //     {
-        //         new OpenApiSecurityScheme
-        //         {
-        //             Reference = new OpenApiReference
-        //             {
-        //                 Id = "Bearer",
-        //                 Type = ReferenceType.SecurityScheme
-        //             }
-        //         },
-        //         new List<string>()
-        //     }
-        // });
     });
 
 builder.Services.AddAutoMapper(typeof(BlAssemblyMarker));

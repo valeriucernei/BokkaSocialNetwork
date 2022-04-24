@@ -75,7 +75,7 @@ public class PostsController : ControllerBase
         if (post is null)
             return NotFound("There is no post with such Id.");
 
-        var user = _usersService.GetUserByClaims(User).Result;
+        var user = await _usersService.GetUserByClaims(User);
 
         if (user.Id != post.UserId)
             return BadRequest("You are not allowed to edit this post.");
@@ -93,7 +93,7 @@ public class PostsController : ControllerBase
         if (post is null)
             return NotFound("There is no post with such Id.");
 
-        var user = _usersService.GetUserByClaims(User).Result;
+        var user = await _usersService.GetUserByClaims(User);
 
         if (user.Id != post.UserId)
             return BadRequest("You are not allowed to delete this post.");

@@ -15,12 +15,16 @@ public class LikesRepository : ILikesRepository
 
     public async Task<Like?> GetLikeByPostAndUser(Guid postId, Guid userId)
     {
-        return await _context.Likes.Where(l => l.UserId == userId && l.PostId == postId).FirstOrDefaultAsync();
+        return await _context.Likes
+            .Where(l => l.UserId == userId && l.PostId == postId)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<List<Like>> GetLikesOfUser(Guid userId)
     {
-        return await _context.Likes.Where(l => l.UserId == userId).ToListAsync();
+        return await _context.Likes
+            .Where(l => l.UserId == userId)
+            .ToListAsync();
     }
     
     

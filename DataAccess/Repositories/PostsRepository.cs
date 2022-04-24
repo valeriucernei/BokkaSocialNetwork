@@ -15,7 +15,9 @@ public class PostsRepository : IPostsRepository
     
     public async Task<List<Post>> GetPostsByUserId(Guid id)
     {
-        var posts = await _context.Posts.Where(p => p.UserId == id).Include(p => p.User).ToListAsync();
-        return posts;
+        return await _context.Posts
+            .Where(p => p.UserId == id)
+            .Include(p => p.User)
+            .ToListAsync();
     }
 }
