@@ -13,4 +13,5 @@ public interface IPostsService
     Task<PostDto> CreatePost(PostForUpdateDto postForUpdateDto, ClaimsPrincipal user);
     Task<PostDto> UpdatePost(Guid id, PostForUpdateDto postForUpdateDto, ClaimsPrincipal user);
     Task<Response> DeletePost(Guid id, ClaimsPrincipal userClaims);
+    Task<List<PostListDto>> GetTopPosts();
 }

@@ -8,8 +8,8 @@ public class PhotoUploadDto
     public string Base64 { get; set; } = String.Empty;
     
     [Required]
-    public string Extension { get; set; } = "png";
+    public string Extension { get; set; } = String.Empty;
     
     [Required]
-    public Guid PostId { get; set; } = Guid.Empty;
+    public Guid PostId { get; set; }
 }

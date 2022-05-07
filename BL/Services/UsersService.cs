@@ -6,7 +6,6 @@ using BL.Interfaces;
 using Common.Dtos.User;
 using Common.Exceptions;
 using Common.Models;
-using DataAccess.Interfaces;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +19,6 @@ public class UsersService : IUsersService
     private readonly RoleManager<Role> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
-    private readonly IRepository _repository;
     private readonly SignInManager<User> _signInManager;
 
     public UsersService(
@@ -28,22 +26,20 @@ public class UsersService : IUsersService
         RoleManager<Role> roleManager,
         IConfiguration configuration,
         IMapper mapper,
-        IRepository repository,
         SignInManager<User> signInManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
         _mapper = mapper;
-        _repository = repository;
         _signInManager = signInManager;
     }
 
-    public async Task<UserDto> GetUser(ClaimsPrincipal userClaims)
+    public async Task<UserUpdateDto> GetUser(ClaimsPrincipal userClaims)
     {
         var user = await this.GetUserByClaims(userClaims);
         
-        return _mapper.Map<UserDto>(user);
+        return _mapper.Map<UserUpdateDto>(user);
     }
     
     public async Task<UserDto?> GetUser(Guid id)
@@ -69,6 +65,8 @@ public class UsersService : IUsersService
             new (ClaimTypes.Sid, user.Id.ToString()),
             new (ClaimTypes.Email, user.Email!),
             new (ClaimTypes.Name, user.UserName),
+            new (ClaimTypes.Surname, user.FirstName + " " + user.LastName),
+            new (ClaimTypes.AuthenticationMethod,"Bearer JWT Token"),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -102,6 +100,8 @@ public class UsersService : IUsersService
         User user = _mapper.Map<User>(model);
         
         await _userManager.CreateAsync(user, model.Password);
+        
+        await _userManager.AddToRoleAsync(user, UserRoles.User);
 
         return new UserRegisterResponseDto
         {
@@ -165,7 +165,7 @@ public class UsersService : IUsersService
 
     public async Task<IdentityResult> UpdateUser(UserUpdateDto model, ClaimsPrincipal userClaims)
     {
-        var user = GetUserByClaims(userClaims).Result;
+        var user = await GetUserByClaims(userClaims);
         
         _mapper.Map(model, user);
 
@@ -176,7 +176,7 @@ public class UsersService : IUsersService
 
     public async Task<IdentityResult> UpdateUserPassword(UserUpdatePasswordDto model, ClaimsPrincipal userClaims)
     {
-        var user = GetUserByClaims(userClaims).Result;
+        var user = await GetUserByClaims(userClaims);
         
         var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
@@ -190,7 +190,7 @@ public class UsersService : IUsersService
     
     public async Task<Response> DeleteUser(ClaimsPrincipal userClaims)
     {
-        var user = GetUserByClaims(userClaims).Result;
+        var user = await GetUserByClaims(userClaims);
 
         var result = await _userManager.DeleteAsync(user);
         

@@ -34,7 +34,7 @@ public class InvoicesService : IInvoicesService
 
     public async Task<List<InvoiceDto>> GetPersonalInvoices(ClaimsPrincipal userClaims)
     {
-        var user = _usersService.GetUserByClaims(userClaims).Result;
+        var user = await _usersService.GetUserByClaims(userClaims);
 
         var result = await _invoicesRepository.GetInvoicesByUserId(user.Id);
 
@@ -45,7 +45,7 @@ public class InvoicesService : IInvoicesService
     {
         var invoice = _mapper.Map<Invoice>(invoiceForUpdateDto);
 
-        invoice.User = _usersService.GetUserByClaims(userClaims).Result;
+        invoice.User = await _usersService.GetUserByClaims(userClaims);
         
         _repository.Add(invoice);
         

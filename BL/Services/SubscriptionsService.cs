@@ -35,7 +35,7 @@ public class SubscriptionsService : ISubscriptionsService
     
     public async Task<List<SubscriptionDto>> GetUsersSubscriptions(ClaimsPrincipal userClaims)
     {
-        var user = _usersService.GetUserByClaims(userClaims).Result;
+        var user = await _usersService.GetUserByClaims(userClaims);
         
         var subscriptions = await _subscriptionsRepository.GetSubscriptionsByUserId(user.Id);
 
@@ -49,7 +49,7 @@ public class SubscriptionsService : ISubscriptionsService
         subscription.StartDateTime = DateTime.Now;
         subscription.EndDateTime = DateTime.Now + TimeSpan.FromDays(30);
 
-        subscription.User = _usersService.GetUserByClaims(userClaims).Result;
+        subscription.User = await _usersService.GetUserByClaims(userClaims);
         
         _repository.Add(subscription);
         

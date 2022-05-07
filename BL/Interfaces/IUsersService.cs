@@ -8,7 +8,7 @@ namespace BL.Interfaces;
 
 public interface IUsersService
 {
-    Task<UserDto> GetUser(ClaimsPrincipal userClaims);
+    Task<UserUpdateDto> GetUser(ClaimsPrincipal userClaims);
     Task<UserDto?> GetUser(Guid id);
     Task<UserLoginResponseDto> Login(UserLoginDto model);
     Task<UserRegisterResponseDto> Register(UserRegisterDto model);

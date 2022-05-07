@@ -20,8 +20,12 @@ public class PagedRequest
     [Range(5, 50)]
     public int PageSize { get; set; } = 5;
 
+    [Required]
+    [DefaultValue("id")]
     public string ColumnNameForSorting { get; set; } = String.Empty;
 
+    [Required]
+    [DefaultValue("ASC")]
     public string SortDirection { get; set; } = String.Empty;
 
     public RequestFilters RequestFilters { get; set; }

@@ -2,7 +2,6 @@ using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Like;
-using Common.Models;
 using DataAccess.Interfaces;
 using Domain.Models;
 
@@ -40,7 +39,7 @@ public class LikesService : ILikesService
         return _mapper.Map<List<LikeListOfUserDto>>(likes);
     }
 
-    public async Task<Response> LikeAction(LikeCreateDto likeCreateDto, ClaimsPrincipal userClaims)
+    public async Task<LikeResponseDto> LikeAction(LikeCreateDto likeCreateDto, ClaimsPrincipal userClaims)
     {
         var user = await _usersService.GetUserByClaims(userClaims);
         var like = await _likesRepository.GetLikeByPostAndUser(likeCreateDto.PostId, user.Id);
@@ -48,33 +47,43 @@ public class LikesService : ILikesService
         if (like is null)
             return await Like(likeCreateDto, userClaims);
 
-        return await Dislike(like);
+        return await Dislike(like, likeCreateDto);
     }
 
-    private async Task<Response> Like(LikeCreateDto likeCreateDto, ClaimsPrincipal userClaims)
+    private async Task<LikeResponseDto> Like(LikeCreateDto likeCreateDto, ClaimsPrincipal userClaims)
     {
         var like = _mapper.Map<Like>(likeCreateDto);
         
         like.Post = await _repository.GetById<Post>(likeCreateDto.PostId);
         like.User = await _usersService.GetUserByClaims(userClaims);
-        
+
         _repository.Add(like);
         await _repository.SaveChangesAsync();
         
-        return new Response
+        var postLikes = await GetLikesOfPost(likeCreateDto.PostId);
+        var likesCount = postLikes.Count;
+        
+        return new LikeResponseDto
         {
-            Message = "Post successfully liked!"
+            IsLiked = true,
+            Message = "Post successfully liked!",
+            LikesCount = likesCount
         };
     }
 
-    private async Task<Response> Dislike(Like like)
+    private async Task<LikeResponseDto> Dislike(Like like, LikeCreateDto likeCreateDto)
     {
         await _repository.Delete<Like>(like.Id);
         await _repository.SaveChangesAsync();
+        
+        var postLikes = await GetLikesOfPost(likeCreateDto.PostId);
+        var likesCount = postLikes.Count;
 
-        return new Response
+        return new LikeResponseDto
         {
-            Message = "Post successfully disliked!"
+            IsLiked = false,
+            Message = "Post successfully disliked!",
+            LikesCount = likesCount
         };
     }
 

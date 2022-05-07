@@ -9,5 +9,5 @@ public class PostForUpdateDto
     public string Title { get; set; } = String.Empty;
     
     [MaxLength(512)]
-    public string Content { get; set; } = String.Empty;
+    public string? Content { get; set; }
 }

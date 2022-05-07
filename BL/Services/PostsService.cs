@@ -51,7 +51,7 @@ public class PostsService : IPostsService
     {
         var post = _mapper.Map<Post>(postForUpdateDto);
 
-        post.User = _usersService.GetUserByClaims(userClaims).Result;
+        post.User = await _usersService.GetUserByClaims(userClaims);
         
         _repository.Add(post);
         
@@ -81,4 +81,11 @@ public class PostsService : IPostsService
             Message = "You have successfully deleted this post."
         };
     }
+
+    public async Task<List<PostListDto>> GetTopPosts()
+    {
+        var posts = await _postsRepository.GetTopPosts();
+        return _mapper.Map<List<PostListDto>>(posts);
+    }
+
 }

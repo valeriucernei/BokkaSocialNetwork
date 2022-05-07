@@ -7,9 +7,9 @@ public class UserLoginDto
 {
     [DefaultValue("valera")]
     [Required(ErrorMessage = "Username is required")]
-    public string? Username { get; set; }
+    public string Username { get; set; } = String.Empty;
 
     [DefaultValue("123321")]
     [Required(ErrorMessage = "Password is required")]
-    public string? Password { get; set; }
+    public string Password { get; set; } = String.Empty;
 }

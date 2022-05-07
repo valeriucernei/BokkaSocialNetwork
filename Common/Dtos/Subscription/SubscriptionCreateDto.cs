@@ -5,5 +5,5 @@ namespace Common.Dtos.Subscription;
 public class SubscriptionCreateDto
 {
     [Required]
-    public Guid UserId { get; set; } = Guid.Empty;
+    public Guid UserId { get; set; }
 }

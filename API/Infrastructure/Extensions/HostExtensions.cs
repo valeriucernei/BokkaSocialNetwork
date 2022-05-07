@@ -16,7 +16,9 @@ public static class HostExtensions
         {
             var context = services.GetRequiredService<Context>();
             var userManager = services.GetRequiredService<UserManager<User>>();
+            var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
+            await UsersSeed.SeedIdentityRoles(roleManager);
             await UsersSeed.Seed(userManager);
             await PostsSeed.Seed(context); 
         }

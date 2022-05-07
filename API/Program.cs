@@ -115,4 +115,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseStaticFiles();
+
 await app.RunAsync();

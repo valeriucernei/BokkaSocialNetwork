@@ -19,9 +19,11 @@ public class UsersController: ControllerBase
     }
     
     [HttpGet("user")]
-    public async Task<UserDto> GetUser()
+    public async Task<IActionResult> GetUser()
     {
-        return await _usersService.GetUser(User);
+        var result = await _usersService.GetUser(User);
+
+        return Ok(result);
     }
     
     [AllowAnonymous]

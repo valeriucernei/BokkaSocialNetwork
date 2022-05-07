@@ -51,6 +51,15 @@ public class PostsController : ControllerBase
     }
     
     [AllowAnonymous]
+    [HttpGet("top")]
+    public async Task<IActionResult> GetTopPosts()
+    {
+        var result = await _postsService.GetTopPosts();
+
+        return Ok(result);
+    }
+    
+    [AllowAnonymous]
     [HttpPost("search")]
     public async Task<IActionResult> GetPagedPosts([FromBody] PagedRequest pagedRequest)
     {
