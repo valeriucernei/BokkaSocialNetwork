@@ -1,5 +1,4 @@
 using BL.Interfaces;
-using Common.Dtos.Photo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,12 +39,19 @@ public class PhotosController : ControllerBase
 
         return Ok(result);
     }
-    
+
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadPhotos(PhotoUploadDto photoUploadDto)
+    [DisableRequestSizeLimit]
+    public async Task<IActionResult> Upload()
     {
-        var post =  await _postsService.GetPost(photoUploadDto.PostId);
-    
+        var formCollection = await Request.ReadFormAsync();
+        var file = formCollection.Files.First();
+
+        formCollection.TryGetValue("secret", out var value);
+        Guid postId = Guid.Parse(value.ToString());
+
+        var post =  await _postsService.GetPost(postId);
+
         if (post is null)
             return NotFound("There is no post with such Id.");
         
@@ -55,9 +61,10 @@ public class PhotosController : ControllerBase
             return BadRequest("You are not allowed to edit this post.");
         
         var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot/photos");
-        
-        var result = await _photosService.UploadPhoto(photoUploadDto, directoryPath);
-        
+
+        var result = await _photosService.Upload(file, postId, directoryPath);
+
         return Ok(result);
     }
+    
 }

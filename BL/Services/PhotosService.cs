@@ -5,6 +5,7 @@ using Common.Exceptions;
 using Common.Models;
 using DataAccess.Interfaces;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace BL.Services;
 
@@ -65,4 +66,49 @@ public class PhotosService : IPhotosService
             Message = "Photos uploaded successfully."
         };
     }
+
+    public async Task<Response> Upload(IFormFile file, Guid postId, string directoryPath)
+    {
+        var post = await _repository.GetById<Post>(postId);
+        var photo = new Photo()
+        {
+            Post = post,
+            Extension = "png"
+        };
+
+        try
+        {
+            _repository.Add(photo);
+
+            if (file.Length > 0)
+            {
+                try
+                {
+                    var fullPath = Path.Combine(directoryPath, $"{photo.Id.ToString()}.png");
+
+                    await using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+                }
+                catch
+                {
+                    throw new FormException("Photo couldn't be stored. Try again.");
+                }
+            }
+            else
+            {
+                throw new FormException("There are no files to upload.");
+            }
+            
+            await _repository.SaveChangesAsync();
+            return new Response
+            {
+                Message = "Photos uploaded successfully."
+            };
+        } 
+        catch
+        {
+            throw new FormException("Photo couldn't be saved. Try again.");
+        }
+    }
+    
 }
