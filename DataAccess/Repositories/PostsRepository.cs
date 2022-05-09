@@ -7,12 +7,10 @@ namespace DataAccess.Repositories;
 public class PostsRepository : IPostsRepository
 {
     private readonly Context _context;
-    private readonly ILikesRepository _likesRepository;
 
-    public PostsRepository(Context context, ILikesRepository likesRepository)
+    public PostsRepository(Context context)
     {
         _context = context;
-        _likesRepository = likesRepository;
     }
     
     public async Task<List<Post>> GetPostsByUserId(Guid id)

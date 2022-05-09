@@ -27,6 +27,7 @@ builder.Services.AddScoped<ISubscriptionsRepository, SubscriptionsRepository>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<ILikesService, LikesService>();
+builder.Services.AddScoped<IPlansService, PlansService>();
 builder.Services.AddScoped<IPhotosService, PhotosService>();
 builder.Services.AddScoped<IInvoicesService, InvoicesService>();
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();

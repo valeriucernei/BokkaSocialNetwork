@@ -11,6 +11,7 @@ public class Context : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, 
     public DbSet<Like> Likes => Set<Like>();
     public DbSet<Photo> Photos => Set<Photo>();
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     
     public Context() {}

@@ -5,7 +5,7 @@ namespace Domain.Models;
 
 public sealed class Invoice : BaseEntity
 {
-    public int Amount { get; set; } = 0;
+    public int Amount { get; set; }
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
     

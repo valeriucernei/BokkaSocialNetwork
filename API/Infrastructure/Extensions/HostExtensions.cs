@@ -18,9 +18,10 @@ public static class HostExtensions
             var userManager = services.GetRequiredService<UserManager<User>>();
             var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
+            await PlansSeed.Seed(context);
             await UsersSeed.SeedIdentityRoles(roleManager);
             await UsersSeed.Seed(userManager);
-            await PostsSeed.Seed(context); 
+            await PostsSeed.Seed(context);
         }
         catch (Exception ex)
         {

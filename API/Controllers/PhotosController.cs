@@ -47,7 +47,7 @@ public class PhotosController : ControllerBase
         var formCollection = await Request.ReadFormAsync();
         var file = formCollection.Files.First();
 
-        formCollection.TryGetValue("secret", out var value);
+        formCollection.TryGetValue("postId", out var value);
         Guid postId = Guid.Parse(value.ToString());
 
         var post =  await _postsService.GetPost(postId);
