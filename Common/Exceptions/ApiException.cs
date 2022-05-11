@@ -2,12 +2,10 @@ using System.Net;
 
 namespace Common.Exceptions;
 
+[Serializable]
 public class ApiException : Exception
 {
-    public HttpStatusCode Code { get; set; }
+    public virtual HttpStatusCode Code { get; } = HttpStatusCode.BadRequest;
 
-    public ApiException(HttpStatusCode code, string message) : base(message)
-    {
-        Code = code;
-    }
+    public ApiException(string message) : base(message) { }
 }

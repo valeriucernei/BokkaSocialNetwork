@@ -1,5 +1,6 @@
 using System.Net;
 using Common.Exceptions;
+using Newtonsoft.Json;
 
 namespace API.Infrastructure.Middlewares;
 
@@ -18,18 +19,11 @@ public class ExceptionHandlingMiddleware
     {
         try
         {
-            await _next(context);
+            await _next.Invoke(context);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An exception has occured");
-
-            context.Response.StatusCode = ex switch
-            {
-                ValidationException _ => (int) HttpStatusCode.BadRequest,
-                
-                _ => (int) HttpStatusCode.InternalServerError
-            };
 
             await CreateExceptionResponseAsync(context, ex);
         }
@@ -37,12 +31,17 @@ public class ExceptionHandlingMiddleware
 
     private static Task CreateExceptionResponseAsync(HttpContext context, Exception ex)
     {
+        if (ex is ApiException apiEx)
+            context.Response.StatusCode = (int)apiEx.Code;
+        else
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; 
+        
         context.Response.ContentType = "application/json";
 
-        return context.Response.WriteAsync(new ErrorDetails()
+        return context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails()
         {
             StatusCode = context.Response.StatusCode,
             Message = ex.Message
-        }.ToString());
+        }));
     }
 }

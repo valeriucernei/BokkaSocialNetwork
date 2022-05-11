@@ -4,7 +4,7 @@ namespace Common.Exceptions;
 
 public class FormException : ApiException
 {
-    public FormException(string message) : base(HttpStatusCode.BadRequest, message)
-    {
-    }
+    public override HttpStatusCode Code => HttpStatusCode.BadRequest;
+    
+    public FormException(string message) : base(message) { }
 }

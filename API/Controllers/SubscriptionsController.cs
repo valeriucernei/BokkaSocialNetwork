@@ -21,10 +21,7 @@ public class SubscriptionsController : ControllerBase
     public async Task<IActionResult> GetSubscription(Guid id)
     {
         var result =  await _subscriptionsService.GetSubscription(id);
-    
-        if (result is null)
-            return NotFound("There is no subscription with such Id.");
-    
+
         return Ok(result);
     }
     

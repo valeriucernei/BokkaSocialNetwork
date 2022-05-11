@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Post;
+using Common.Exceptions;
 using Common.Models;
 using Common.Models.PagedRequest;
 using DataAccess.Interfaces;
@@ -31,20 +32,29 @@ public class PostsService : IPostsService
     public async Task<PostDto?> GetPost(Guid id)
     {
         var post = await _repository.GetById<Post>(id);
-    
-        return _mapper.Map<PostDto>(post);
+
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
+        var result = _mapper.Map<PostDto>(post);
+
+        return result;
     }
 
     public async Task<List<PostListDto>> GetUsersPosts(Guid userId)
     {
         var posts = await _postsRepository.GetPostsByUserId(userId);
+        
+        var result = _mapper.Map<List<PostListDto>>(posts);
 
-        return _mapper.Map<List<PostListDto>>(posts);
+        return result;
     }
     
     public async Task<PaginatedResult<PostListDto>> GetPagedPosts(PagedRequest pagedRequest)
     {
-        return await _repository.GetPagedData<Post, PostListDto>(pagedRequest);
+        var result = await _repository.GetPagedData<Post, PostListDto>(pagedRequest);
+        
+        return result;
     }
     
     public async Task<PostDto> CreatePost(PostForUpdateDto postForUpdateDto, ClaimsPrincipal userClaims)
@@ -53,7 +63,7 @@ public class PostsService : IPostsService
 
         post.User = await _usersService.GetUserByClaims(userClaims);
         
-        _repository.Add(post);
+        await _repository.Add(post);
         
         await _repository.SaveChangesAsync();
 
@@ -64,15 +74,35 @@ public class PostsService : IPostsService
     {
         var post = await _repository.GetById<Post>(id);
 
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
+        var user = await _usersService.GetUserByClaims(userClaims);
+
+        if (user.Id != post.UserId)
+            throw new NotAllowedException("You are not allowed to edit this post.");
+
         _mapper.Map(postForUpdateDto, post);
         
         await _repository.SaveChangesAsync();
         
-        return _mapper.Map<PostDto>(post);
+        var result = _mapper.Map<PostDto>(post);
+
+        return result;
     }
     
     public async Task<Response> DeletePost(Guid id, ClaimsPrincipal userClaims)
     {
+        var post = await _repository.GetById<Post>(id);
+
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
+        var user = await _usersService.GetUserByClaims(userClaims);
+
+        if (user.Id != post.UserId)
+            throw new NotAllowedException("You are not allowed to delete this post.");
+        
         await _repository.Delete<Post>(id);
         await _repository.SaveChangesAsync();
 

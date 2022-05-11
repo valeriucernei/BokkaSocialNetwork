@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Photo;
@@ -13,102 +14,78 @@ public class PhotosService : IPhotosService
 {
     private readonly IRepository _repository;
     private readonly IPhotosRepository _photosRepository;
+    private readonly IPostsService _postsService;
+    private readonly IUsersService _usersService;
     private readonly IMapper _mapper;
     
-    public PhotosService(IRepository repository, IPhotosRepository photosRepository, IMapper mapper)
+    public PhotosService(
+        IRepository repository, 
+        IPhotosRepository photosRepository, 
+        IPostsService postsService, 
+        IUsersService usersService,
+        IMapper mapper)
     {
         _repository = repository;
         _photosRepository = photosRepository;
+        _postsService = postsService;
+        _usersService = usersService;
         _mapper = mapper;
     }
     
     public async Task<List<PhotoDto>> GetPhotosByPostId(Guid postId)
     {
+        var post =  await _postsService.GetPost(postId);
+
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
         var photos = await _photosRepository.GetPhotosByPostId(postId);
 
         return _mapper.Map<List<PhotoDto>>(photos);
     }
-    
-    public async Task<Response> UploadPhoto(PhotoUploadDto photoUploadDto, string directoryPath)
+
+    public async Task<Response> Upload(IFormFile file, Guid postId, string directoryPath, ClaimsPrincipal userClaims)
     {
-        var photo = _mapper.Map<Photo>(photoUploadDto);
-        var post = await _repository.GetById<Post>(photoUploadDto.PostId);
-
-        try
-        {
-            photo.Post = post;
-            _repository.Add(photo);
-            
-            var task1 = _repository.SaveChangesAsync();
-
-            try
-            {
-                var bytes = Convert.FromBase64String(photoUploadDto.Base64);
-
-                var filePath = Path.Combine(directoryPath, photo.Id.ToString());
-
-                var task2 = File.WriteAllBytesAsync($"{filePath}.{photoUploadDto.Extension}", bytes);
-
-                await Task.WhenAll(task1, task2);
-            }
-            catch
-            {
-                throw new FormException("Photo couldn't be stored. Try again.");
-            }
-        }
-        catch
-        {
-            throw new FormException("Photo couldn't be saved. Try again.");
-        }
-
-        return new Response 
-        {
-            Message = "Photos uploaded successfully."
-        };
-    }
-
-    public async Task<Response> Upload(IFormFile file, Guid postId, string directoryPath)
-    {
+        if (file.Length == 0)
+            throw new FormException("There are no photos to upload.");
+        
         var post = await _repository.GetById<Post>(postId);
+
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
+        var user = await _usersService.GetUserByClaims(userClaims);
+
+        if (user.Id != post.UserId)
+            throw new NotAllowedException("You are not allowed to upload photos to this post.");
+
         var photo = new Photo()
         {
             Post = post,
             Extension = "png"
         };
 
-        try
-        {
-            _repository.Add(photo);
+        await _repository.Add(photo);
+        
+        var task1 = _repository.SaveChangesAsync();
 
-            if (file.Length > 0)
-            {
-                try
-                {
-                    var fullPath = Path.Combine(directoryPath, $"{photo.Id.ToString()}.png");
+        var task2 = UploadPhoto(photo, file, directoryPath);
+        
+        await Task.WhenAll(task1, task2);
 
-                    await using var stream = new FileStream(fullPath, FileMode.Create);
-                    await file.CopyToAsync(stream);
-                }
-                catch
-                {
-                    throw new FormException("Photo couldn't be stored. Try again.");
-                }
-            }
-            else
-            {
-                throw new FormException("There are no files to upload.");
-            }
-            
-            await _repository.SaveChangesAsync();
-            return new Response
-            {
-                Message = "Photos uploaded successfully."
-            };
-        } 
-        catch
+        return new Response 
         {
-            throw new FormException("Photo couldn't be saved. Try again.");
-        }
+            Message = "Photos uploaded successfully."
+        };
+
+    }
+
+    private async Task UploadPhoto(Photo photo, IFormFile file, string directoryPath)
+    {
+        var fullPath = Path.Combine(directoryPath, $"{photo.Id.ToString()}.png");
+
+        await using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
     }
     
 }

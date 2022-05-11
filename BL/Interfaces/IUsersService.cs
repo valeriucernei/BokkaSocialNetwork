@@ -12,7 +12,6 @@ public interface IUsersService
     Task<UserDto?> GetUser(Guid id);
     Task<UserLoginResponseDto> Login(UserLoginDto model);
     Task<UserRegisterResponseDto> Register(UserRegisterDto model);
-    Task<UserRegisterResponseDto> RegisterAdmin(UserRegisterDto model);
     Task<User> GetUserByClaims(ClaimsPrincipal user);
     Task<IdentityResult> UpdateUser(UserUpdateDto model, ClaimsPrincipal userClaims);
     Task LogOut();

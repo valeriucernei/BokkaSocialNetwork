@@ -1,6 +1,5 @@
 using BL.Interfaces;
 using Common.Dtos.User;
-using Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,14 +31,10 @@ public class UsersController: ControllerBase
     {
         var result = await _usersService.GetUser(id);
 
-        if (result is null)
-            return NotFound("There is no user with such Id.");
-
         return Ok(result);
     }
     
     [AllowAnonymous]
-    [ApiExceptionFilter]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserLoginDto model)
     {
@@ -49,7 +44,6 @@ public class UsersController: ControllerBase
     }
     
     [AllowAnonymous]
-    [ApiExceptionFilter]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
     {
@@ -57,24 +51,15 @@ public class UsersController: ControllerBase
         
         return Ok(result);
     }
-    
-    [ApiExceptionFilter]
-    [HttpPost("register-admin")]
-    public async Task<IActionResult> RegisterAdmin([FromBody] UserRegisterDto model)
-    {
-        var result = await _usersService.RegisterAdmin(model);
 
-        return Ok(result);
-    }
-    
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
         await _usersService.LogOut();
+        
         return Ok(new {});
     }
     
-    [ApiExceptionFilter]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UserUpdateDto model)
     {
@@ -88,7 +73,6 @@ public class UsersController: ControllerBase
         return Ok(result);
     }
     
-    [ApiExceptionFilter]
     [HttpPut("update-password")]
     public async Task<IActionResult> UpdatePassword([FromBody] UserUpdatePasswordDto model)
     {

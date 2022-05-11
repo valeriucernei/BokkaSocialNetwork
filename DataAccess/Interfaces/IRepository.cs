@@ -15,7 +15,7 @@ public interface IRepository
     Task<TEntity> GetByIdWithInclude<TEntity>(Guid id, params Expression<Func<TEntity, object>>[] includeProperties) 
         where TEntity : BaseEntity;
 
-    void Add<TEntity>(TEntity entity) where TEntity : BaseEntity;
+    Task Add<TEntity>(TEntity entity) where TEntity : BaseEntity;
 
     Task<TEntity> Delete<TEntity>(Guid id) where TEntity : BaseEntity;
     

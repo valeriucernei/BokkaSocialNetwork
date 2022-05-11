@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Like;
+using Common.Exceptions;
 using DataAccess.Interfaces;
 using Domain.Models;
 
@@ -13,35 +14,58 @@ public class LikesService : ILikesService
     private readonly IRepository _repository;
     private readonly ILikesRepository _likesRepository;
     private readonly IUsersService _usersService;
+    private readonly IPostsService _postsService;
 
     public LikesService(IMapper mapper, 
         IRepository repository, 
         ILikesRepository likesRepository, 
-        IUsersService usersService)
+        IUsersService usersService,
+        IPostsService postsService)
     {
         _mapper = mapper;
         _repository = repository;
         _likesRepository = likesRepository;
         _usersService = usersService;
+        _postsService = postsService;
     }
 
     public async Task<List<LikeListOfPostDto>> GetLikesOfPost(Guid postId)
     {
-        var post = await _repository.GetByIdWithInclude<Post>(postId, p => p.Likes);
+        var post =  await _postsService.GetPost(postId);
 
-        return _mapper.Map<List<LikeListOfPostDto>>(post.Likes.ToList());
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
+        var likes = await _repository.GetByIdWithInclude<Post>(postId, p => p.Likes);
+        
+        var result = _mapper.Map<List<LikeListOfPostDto>>(likes.Likes.ToList());
+
+        return result;
     }
     
     public async Task<List<LikeListOfUserDto>> GetLikesOfUser(Guid userId)
     {
-        var likes = await _likesRepository.GetLikesOfUser(userId);
+        var user = await _usersService.GetUser(userId);
 
-        return _mapper.Map<List<LikeListOfUserDto>>(likes);
+        if (user is null)
+            throw new NotFoundException("There is no user with such Id.");
+        
+        var likes = await _likesRepository.GetLikesOfUser(userId);
+        
+        var result = _mapper.Map<List<LikeListOfUserDto>>(likes);
+
+        return result;
     }
 
     public async Task<LikeResponseDto> LikeAction(LikeCreateDto likeCreateDto, ClaimsPrincipal userClaims)
     {
         var user = await _usersService.GetUserByClaims(userClaims);
+        
+        var post =  await _postsService.GetPost(likeCreateDto.PostId);
+
+        if (post is null)
+            throw new NotFoundException("There is no post with such Id.");
+        
         var like = await _likesRepository.GetLikeByPostAndUser(likeCreateDto.PostId, user.Id);
         
         if (like is null)
@@ -57,7 +81,7 @@ public class LikesService : ILikesService
         like.Post = await _repository.GetById<Post>(likeCreateDto.PostId);
         like.User = await _usersService.GetUserByClaims(userClaims);
 
-        _repository.Add(like);
+        await _repository.Add(like);
         await _repository.SaveChangesAsync();
         
         var postLikes = await GetLikesOfPost(likeCreateDto.PostId);

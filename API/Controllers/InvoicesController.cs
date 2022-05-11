@@ -11,22 +11,17 @@ namespace API.Controllers;
 public class InvoicesController : ControllerBase
 {
     private readonly IInvoicesService _invoicesService;
-    private readonly IUsersService _usersService;
 
-    public InvoicesController(IInvoicesService invoicesService, IUsersService userManager)
+    public InvoicesController(IInvoicesService invoicesService)
     {
         _invoicesService = invoicesService;
-        _usersService = userManager;
     }
     
     [HttpGet("invoice/{id:guid}")]
     public async Task<IActionResult> GetInvoice(Guid id)
     {
         var result =  await _invoicesService.GetInvoiceById(id);
-    
-        if (result is null)
-            return NotFound("There is no invoice with such Id.");
-    
+
         return Ok(result);
     }
     
@@ -34,6 +29,7 @@ public class InvoicesController : ControllerBase
     public async Task<IActionResult> GetPersonalInvoices()
     {
         var result = await _invoicesService.GetPersonalInvoices(User);
+        
         return Ok(result);
     }
     
@@ -48,16 +44,6 @@ public class InvoicesController : ControllerBase
     [HttpPut("update/{id:guid}")]
     public async Task<IActionResult> UpdateInvoice(Guid id, InvoiceForUpdateDto invoiceForUpdateDto)
     {
-        var invoice =  await _invoicesService.GetInvoiceById(id);
-    
-        if (invoice is null)
-            return NotFound("There is no invoice with such Id.");
-
-        var user = await _usersService.GetUserByClaims(User);
-
-        if (user.Id != invoice.UserId)
-            return BadRequest("You are not allowed to edit this invoice.");
-        
         var invoiceDto = await _invoicesService.UpdateInvoice(id, invoiceForUpdateDto, User);
         
         return CreatedAtAction(nameof(GetInvoice), new { id = invoiceDto.Id }, invoiceDto);

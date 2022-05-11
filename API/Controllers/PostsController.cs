@@ -14,13 +14,11 @@ namespace API.Controllers;
 public class PostsController : ControllerBase
 {
     private readonly IPostsService _postsService;
-    private readonly IUsersService _usersService;
     private readonly UserManager<User> _userManager;
 
-    public PostsController(IPostsService postsService, IUsersService usersService, UserManager<User> userManager)
+    public PostsController(IPostsService postsService, UserManager<User> userManager)
     {
         _postsService = postsService;
-        _usersService = usersService;
         _userManager = userManager;
     }
     
@@ -29,10 +27,7 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> GetPost(Guid id)
     {
         var result =  await _postsService.GetPost(id);
-    
-        if (result is null)
-            return NotFound("There is no post with such Id.");
-    
+
         return Ok(result);
     }
     
@@ -79,16 +74,6 @@ public class PostsController : ControllerBase
     [HttpPut("update/{id:guid}")]
     public async Task<IActionResult> UpdatePost(Guid id, PostForUpdateDto postForUpdateDto)
     {
-        var post =  await _postsService.GetPost(id);
-    
-        if (post is null)
-            return NotFound("There is no post with such Id.");
-
-        var user = await _usersService.GetUserByClaims(User);
-
-        if (user.Id != post.UserId)
-            return BadRequest("You are not allowed to edit this post.");
-        
         var postDto = await _postsService.UpdatePost(id, postForUpdateDto, User);
         
         return CreatedAtAction(nameof(GetPost), new { id = postDto.Id }, postDto);
@@ -97,16 +82,6 @@ public class PostsController : ControllerBase
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeletePost(Guid id)
     {
-        var post =  await _postsService.GetPost(id);
-    
-        if (post is null)
-            return NotFound("There is no post with such Id.");
-
-        var user = await _usersService.GetUserByClaims(User);
-
-        if (user.Id != post.UserId)
-            return BadRequest("You are not allowed to delete this post.");
-        
         var result = await _postsService.DeletePost(id, User);
 
         return Ok(result);

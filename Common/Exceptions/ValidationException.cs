@@ -1,6 +1,10 @@
+using System.Net;
+
 namespace Common.Exceptions;
 
-public class ValidationException : Exception
+public class ValidationException : ApiException
 {
-    public ValidationException(string message): base(message) { }
+    public override HttpStatusCode Code => HttpStatusCode.BadRequest;
+    
+    public ValidationException(string message) : base(message) { }
 }

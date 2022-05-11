@@ -51,7 +51,7 @@ public class Repository : IRepository
         return (await query.FirstOrDefaultAsync(entity => entity.Id == id))!;
     }
 
-    public async void Add<TEntity>(TEntity entity) where TEntity : BaseEntity
+    public async Task Add<TEntity>(TEntity entity) where TEntity : BaseEntity
     {
         await _context.Set<TEntity>().AddAsync(entity);
     }

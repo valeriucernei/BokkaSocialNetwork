@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Subscription;
+using Common.Exceptions;
 using DataAccess.Interfaces;
 using Domain.Models;
 
@@ -29,8 +30,13 @@ public class SubscriptionsService : ISubscriptionsService
     public async Task<SubscriptionDto?> GetSubscription(Guid id)
     {
         var subscription = await _repository.GetById<Subscription>(id);
-    
-        return _mapper.Map<SubscriptionDto>(subscription);
+
+        if (subscription is null)
+            throw new NotFoundException("There is no subscription with such Id.");
+        
+        var result = _mapper.Map<SubscriptionDto>(subscription);
+
+        return result;
     }
     
     public async Task<List<SubscriptionDto>> GetUsersSubscriptions(ClaimsPrincipal userClaims)
@@ -38,8 +44,10 @@ public class SubscriptionsService : ISubscriptionsService
         var user = await _usersService.GetUserByClaims(userClaims);
         
         var subscriptions = await _subscriptionsRepository.GetSubscriptionsByUserId(user.Id);
+        
+        var result = _mapper.Map<List<SubscriptionDto>>(subscriptions);
 
-        return _mapper.Map<List<SubscriptionDto>>(subscriptions);
+        return result;
     }
     
     public async Task<SubscriptionDto> CreateSubscription(SubscriptionCreateDto subscriptionCreateDto, ClaimsPrincipal userClaims)
@@ -51,10 +59,12 @@ public class SubscriptionsService : ISubscriptionsService
 
         subscription.User = await _usersService.GetUserByClaims(userClaims);
         
-        _repository.Add(subscription);
+        await _repository.Add(subscription);
         
         await _repository.SaveChangesAsync();
+        
+        var result = _mapper.Map<SubscriptionDto>(subscription);
 
-        return _mapper.Map<SubscriptionDto>(subscription);
+        return result;
     }
 }

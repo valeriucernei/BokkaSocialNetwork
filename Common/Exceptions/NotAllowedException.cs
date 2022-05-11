@@ -2,9 +2,9 @@ using System.Net;
 
 namespace Common.Exceptions;
 
-public class LoginException : ApiException
+public class NotAllowedException : ApiException
 {
     public override HttpStatusCode Code => HttpStatusCode.Forbidden;
     
-    public LoginException(string message) : base(message) { }
+    public NotAllowedException(string message) : base(message) { }
 }
