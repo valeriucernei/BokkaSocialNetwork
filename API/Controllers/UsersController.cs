@@ -34,6 +34,14 @@ public class UsersController: ControllerBase
         return Ok(result);
     }
     
+    [HttpGet("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var result = await _usersService.RefreshToken(User);
+        
+        return Ok(result);
+    }
+    
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserLoginDto model)

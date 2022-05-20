@@ -48,6 +48,19 @@ public class UsersService : IUsersService
 
         return _mapper.Map<UserDto>(user);
     }
+
+    public async Task<UserLoginResponseDto> RefreshToken(ClaimsPrincipal userClaims)
+    {
+        var user = await GetUserByClaims(userClaims);
+        var token = await GetToken(user);
+        
+        return new UserLoginResponseDto()
+        {
+            token_type = "Bearer",
+            access_token = new JwtSecurityTokenHandler().WriteToken(token),
+            expires_at = token.ValidTo
+        };
+    }
     
     public async Task<UserLoginResponseDto> Login(UserLoginDto model)
     {
