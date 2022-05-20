@@ -1,20 +1,31 @@
+using AutoMapper;
 using BL.Interfaces;
-using DataAccess.Interfaces;
-using Domain.Models;
+using Common.Dtos.Plan;
+using Stripe;
 
 namespace BL.Services;
 
 public class PlansService : IPlansService
 {
-    private readonly IRepository _repository;
+    private readonly IMapper _mapper;
     
-    public PlansService(IRepository repository)
+    public PlansService(IMapper mapper)
     {
-        _repository = repository;
+        _mapper = mapper;
     }
 
-    public async Task<List<Plan>> GetAllPlans()
+    public async Task<List<PlanDto>> GetAllPlans()
     {
-        return await _repository.GetAll<Plan>();
+        var options = new ProductListOptions
+        {
+            Limit = 3,
+            Expand = new List<string> {"data.default_price"}
+        };
+
+        var service = new ProductService();
+
+        StripeList<Product> plans = await service.ListAsync(options);
+
+        return _mapper.Map<List<PlanDto>>(plans);
     }
 }

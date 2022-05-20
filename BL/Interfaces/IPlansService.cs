@@ -1,8 +1,8 @@
-using Domain.Models;
+using Common.Dtos.Plan;
 
 namespace BL.Interfaces;
 
 public interface IPlansService
 {
-    Task<List<Plan>> GetAllPlans();
+    Task<List<PlanDto>> GetAllPlans();
 }

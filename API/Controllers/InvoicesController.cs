@@ -1,7 +1,13 @@
+using System.Configuration;
 using BL.Interfaces;
 using Common.Dtos.Invoice;
+using Common.Exceptions;
+using Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Stripe;
+using Stripe.Checkout;
 
 namespace API.Controllers;
 
@@ -11,17 +17,19 @@ namespace API.Controllers;
 public class InvoicesController : ControllerBase
 {
     private readonly IInvoicesService _invoicesService;
+    private readonly StripeSettings _stripeSettings;
 
-    public InvoicesController(IInvoicesService invoicesService)
+    public InvoicesController(IInvoicesService invoicesService, IOptions<StripeSettings> stripeSettings)
     {
         _invoicesService = invoicesService;
+        _stripeSettings = stripeSettings.Value;
     }
     
     [HttpGet("invoice/{id:guid}")]
     public async Task<IActionResult> GetInvoice(Guid id)
     {
         var result =  await _invoicesService.GetInvoiceById(id);
-
+    
         return Ok(result);
     }
     
@@ -33,19 +41,44 @@ public class InvoicesController : ControllerBase
         return Ok(result);
     }
     
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateInvoice(InvoiceForUpdateDto invoiceForUpdateDto)
+    // [HttpPost("create")]
+    // public async Task<IActionResult> CreateInvoice(InvoiceForUpdateDto invoiceForUpdateDto)
+    // {
+    //     var invoiceDto = await _invoicesService.CreateInvoice(invoiceForUpdateDto, User);
+    //
+    //     return CreatedAtAction(nameof(GetInvoice), new { id = invoiceDto.Id }, invoiceDto);
+    // }
+    //
+    // [HttpPut("update/{id:guid}")]
+    // public async Task<IActionResult> UpdateInvoice(Guid id, InvoiceForUpdateDto invoiceForUpdateDto)
+    // {
+    //     var invoiceDto = await _invoicesService.UpdateInvoice(id, invoiceForUpdateDto, User);
+    //     
+    //     return CreatedAtAction(nameof(GetInvoice), new { id = invoiceDto.Id }, invoiceDto);
+    // }
+    
+    [HttpPost("create-checkout-session")]
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] CreateCheckoutSessionRequestDto req)
     {
-        var invoiceDto = await _invoicesService.CreateInvoice(invoiceForUpdateDto, User);
+        var result = await _invoicesService.CreateCheckoutSession(req, User);
 
-        return CreatedAtAction(nameof(GetInvoice), new { id = invoiceDto.Id }, invoiceDto);
+        return Ok(result);
     }
     
-    [HttpPut("update/{id:guid}")]
-    public async Task<IActionResult> UpdateInvoice(Guid id, InvoiceForUpdateDto invoiceForUpdateDto)
+    [AllowAnonymous]
+    [HttpPost("webhook")]
+    public async Task<IActionResult> WebHook()
     {
-        var invoiceDto = await _invoicesService.UpdateInvoice(id, invoiceForUpdateDto, User);
-        
-        return CreatedAtAction(nameof(GetInvoice), new { id = invoiceDto.Id }, invoiceDto);
+        var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+        var stripeEvent = EventUtility.ConstructEvent(
+            json,
+            Request.Headers["Stripe-Signature"],
+            _stripeSettings.WHSecret
+        );
+
+        var result = await _invoicesService.StripeWebhook(stripeEvent);
+
+        return Ok(result);
     }
+    
 }

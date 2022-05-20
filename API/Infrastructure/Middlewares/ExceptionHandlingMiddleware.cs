@@ -1,6 +1,7 @@
 using System.Net;
 using Common.Exceptions;
 using Newtonsoft.Json;
+using Stripe;
 
 namespace API.Infrastructure.Middlewares;
 
@@ -33,6 +34,8 @@ public class ExceptionHandlingMiddleware
     {
         if (ex is ApiException apiEx)
             context.Response.StatusCode = (int)apiEx.Code;
+        else if (ex is StripeException)
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         else
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; 
         

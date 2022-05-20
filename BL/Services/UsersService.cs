@@ -144,6 +144,7 @@ public class UsersService : IUsersService
             new (ClaimTypes.Sid, user.Id.ToString()),
             new (ClaimTypes.Name, user.UserName),
             new (ClaimTypes.Surname, user.FirstName + " " + user.LastName),
+            new (ClaimTypes.Email, user.Email!),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         

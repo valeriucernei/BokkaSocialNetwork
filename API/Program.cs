@@ -1,9 +1,11 @@
 using API.Infrastructure.Extensions;
 using BL;
+using Common.Models;
 using DataAccess;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,11 @@ builder.AddRepositories();
 // For Entity Framework
 builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString(nameof(Context))));
+
+// For Stripe
+StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeSettings:PrivateKey");
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+
 
 // Add authentication
 builder.AddAuthentication();

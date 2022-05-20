@@ -33,11 +33,11 @@ public class SubscriptionsController : ControllerBase
         return Ok(result);
     }
     
-    [HttpPost("create")]
-    public async Task<IActionResult> CreatePost(SubscriptionCreateDto subscriptionCreateDto)
-    {
-        var subscriptionDto = await _subscriptionsService.CreateSubscription(subscriptionCreateDto, User);
-
-        return CreatedAtAction(nameof(GetSubscription), new { id = subscriptionDto.Id }, subscriptionDto);
-    }
+    // [HttpPost("create")]
+    // public async Task<IActionResult> CreatePost(SubscriptionCreateDto subscriptionCreateDto)
+    // {
+    //     var subscriptionDto = await _subscriptionsService.CreateSubscription(subscriptionCreateDto, User);
+    //
+    //     return CreatedAtAction(nameof(GetSubscription), new { id = subscriptionDto.Id }, subscriptionDto);
+    // }
 }
