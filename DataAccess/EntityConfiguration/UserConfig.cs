@@ -27,5 +27,8 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.RegisterDateTime)
             .IsRequired();
+
+        builder.Property(u => u.StripeCustomerId)
+            .HasMaxLength(256);
     }
 }

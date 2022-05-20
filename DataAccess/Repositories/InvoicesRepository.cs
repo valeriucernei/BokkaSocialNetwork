@@ -17,4 +17,9 @@ public class InvoicesRepository : IInvoicesRepository
     {
         return await _context.Invoices.Where(p => p.UserId == id).ToListAsync();
     }
+
+    public async Task<Invoice?> GetInvoiceByStripeInvoiceId(string id)
+    {
+        return await _context.Invoices.FirstOrDefaultAsync(i => i.StripeInvoiceId == id);
+    }
 }

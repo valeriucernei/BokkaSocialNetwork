@@ -10,6 +10,6 @@ public interface IInvoicesService
     Task<List<InvoiceDto>> GetPersonalInvoices(ClaimsPrincipal userClaims);
     // Task<InvoiceDto> CreateInvoice(InvoiceForUpdateDto invoiceForUpdateDto, ClaimsPrincipal userClaims);
     // Task<InvoiceDto> UpdateInvoice(Guid id, InvoiceForUpdateDto invoiceForUpdateDto, ClaimsPrincipal userClaims);
-    Task<CreateCheckoutSessionResponseDto> CreateCheckoutSession(CreateCheckoutSessionRequestDto req, ClaimsPrincipal userClaims);
-    Task<object> StripeWebhook(Event stripeEvent);
+    Task<CreateCheckoutSessionResponseDto> CreateCheckoutSession(CreateCheckoutSessionRequestDto req);
+    Task StripeWebhook(Event stripeEvent);
 }

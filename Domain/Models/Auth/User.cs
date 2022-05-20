@@ -13,6 +13,8 @@ public class User : IdentityUser<Guid>, IBaseEntity
     public override string? Email { get; set; }
     
     public DateTime RegisterDateTime { get; set; } = DateTime.Now;
+
+    public string? StripeCustomerId { get; set; }
     
     public ICollection<Post> Posts { get; set; } = new Collection<Post>();
     public ICollection<Like> Likes { get; set; } = new Collection<Like>();

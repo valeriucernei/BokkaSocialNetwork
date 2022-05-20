@@ -60,7 +60,7 @@ public class InvoicesController : ControllerBase
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession([FromBody] CreateCheckoutSessionRequestDto req)
     {
-        var result = await _invoicesService.CreateCheckoutSession(req, User);
+        var result = await _invoicesService.CreateCheckoutSession(req);
 
         return Ok(result);
     }
@@ -76,9 +76,9 @@ public class InvoicesController : ControllerBase
             _stripeSettings.WHSecret
         );
 
-        var result = await _invoicesService.StripeWebhook(stripeEvent);
+        await _invoicesService.StripeWebhook(stripeEvent);
 
-        return Ok(result);
+        return Ok();
     }
     
 }

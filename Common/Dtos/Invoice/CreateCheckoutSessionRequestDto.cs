@@ -6,10 +6,7 @@ public class CreateCheckoutSessionRequestDto
 {
     [Required]
     public string PriceId { get; set; } = String.Empty;
-    
-    [Required]
-    public int Price { get; set; }
-    
+
     [Required]
     public string SuccessUrl { get; set; } = String.Empty;
     
@@ -21,4 +18,5 @@ public class CreateCheckoutSessionRequestDto
     
     [Required] 
     public string CustomerEmail { get; set; } = String.Empty;
+
 }

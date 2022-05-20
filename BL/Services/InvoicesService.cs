@@ -3,10 +3,12 @@ using AutoMapper;
 using BL.Interfaces;
 using Common.Dtos.Invoice;
 using Common.Dtos.Subscription;
+using Common.Enums;
 using Common.Exceptions;
 using Common.Models;
 using DataAccess.Interfaces;
-using Domain.Models;
+using Domain.Models.Auth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
@@ -20,6 +22,7 @@ public class InvoicesService : IInvoicesService
     private readonly IRepository _repository;
     private readonly IMapper _mapper;
     private readonly IUsersService _usersService;
+    private readonly UserManager<User> _userManager;
     private readonly ISubscriptionsService _subscriptionsService;
     private readonly IInvoicesRepository _invoicesRepository;
     private readonly StripeSettings _stripeSettings;
@@ -28,6 +31,7 @@ public class InvoicesService : IInvoicesService
         IRepository repository, 
         IMapper mapper, 
         IUsersService usersService,
+        UserManager<User> userManager,
         ISubscriptionsService subscriptionsService,
         IInvoicesRepository invoicesRepository,
         IOptions<StripeSettings> stripeSettings)
@@ -35,6 +39,7 @@ public class InvoicesService : IInvoicesService
         _repository = repository;
         _mapper = mapper;
         _usersService = usersService;
+        _userManager = userManager;
         _subscriptionsService = subscriptionsService;
         _invoicesRepository = invoicesRepository;
         _stripeSettings = stripeSettings.Value;
@@ -62,122 +67,108 @@ public class InvoicesService : IInvoicesService
     
         return result;
     }
-    
-    // public async Task<InvoiceDto> CreateInvoice(InvoiceForUpdateDto invoiceForUpdateDto, ClaimsPrincipal userClaims)
-    // {
-    //     var invoice = _mapper.Map<Invoice>(invoiceForUpdateDto);
-    //
-    //     invoice.User = await _usersService.GetUserByClaims(userClaims);
-    //     
-    //     await _repository.Add(invoice);
-    //     
-    //     await _repository.SaveChangesAsync();
-    //     
-    //     var result = _mapper.Map<InvoiceDto>(invoice);
-    //
-    //     return result;
-    // }
-    //
-    // public async Task<InvoiceDto> UpdateInvoice(Guid id, InvoiceForUpdateDto invoiceForUpdateDto, ClaimsPrincipal userClaims)
-    // {
-    //     var invoice = await _repository.GetById<Invoice>(id);
-    //
-    //     if (invoice is null)
-    //         throw new NotFoundException("There is no invoice with such Id.");
-    //
-    //     var user = await _usersService.GetUserByClaims(userClaims);
-    //
-    //     if (user.Id != invoice.UserId)
-    //         throw new NotAllowedException("You are not allowed to edit this invoice.");
-    //
-    //     _mapper.Map(invoiceForUpdateDto, invoice);
-    //     
-    //     await _repository.SaveChangesAsync();
-    //     
-    //     var result = _mapper.Map<InvoiceDto>(invoice);
-    //
-    //     return result;
-    // }
 
-    public async Task<CreateCheckoutSessionResponseDto> CreateCheckoutSession(CreateCheckoutSessionRequestDto req, ClaimsPrincipal userClaims)
+    public async Task<CreateCheckoutSessionResponseDto> CreateCheckoutSession(CreateCheckoutSessionRequestDto req)
     {
         var session = await CreateSession(req);
-        
-        if (session is null)
-            throw new NotFoundException("There is no plan with such Id.");
-        
-        var user = await _usersService.GetUserByClaims(userClaims);
-
-        var invoice = new Invoice()
-        {
-            Amount = req.Price,
-            SessionId = session.Id,
-            User = user
-        };
-        
-        await _repository.Add(invoice);
-        await _repository.SaveChangesAsync();
-        
         var result = new CreateCheckoutSessionResponseDto
         {
             SessionId = session.Id,
-            PublicKey = _stripeSettings.PublicKey
+            PublicKey = _stripeSettings.PublicKey,
         };
 
         return result;
     }
 
-    public async Task<object> StripeWebhook(Event stripeEvent)
+    public async Task StripeWebhook(Event stripeEvent)
     {
         switch (stripeEvent.Type)
         {
-            case Events.CustomerSubscriptionCreated:
-            {
-                var service = new CustomerService();
-                var subscription = stripeEvent.Data.Object as Subscription;
-                var customer = await service.GetAsync(subscription!.CustomerId);
-                
-
-                var subscriptionCreateDto = new SubscriptionCreateDto
-                {
-                    Email = customer.Email,
-                    StartDateTime = subscription!.CurrentPeriodStart,
-                    EndDateTime = subscription.CurrentPeriodEnd
-                };
-
-                await _subscriptionsService.CreateSubscription(subscriptionCreateDto);
-                
-                break;
-            }
-            case Events.CustomerSubscriptionUpdated:
-            {
-                var session = stripeEvent.Data.Object as Stripe.Subscription;
-                Console.WriteLine("*****************Subscription updated*****************");
-                // Update Subsription
-                //await updateSubscription(session);
-                break;
-            }
             case Events.CustomerCreated:
-            {
-                var customer = stripeEvent.Data.Object as Customer;
-                Console.WriteLine("*****************Created new customer*****************");
-                //Do Stuff
-                //await addCustomerIdToUser(customer);
+                await HandleCustomerCreated(stripeEvent);
                 break;
-            }
+
+            case Events.InvoiceCreated:
+                await HandleInvoiceCreated(stripeEvent);
+                break;
+
+            case Events.CustomerSubscriptionCreated:
+                await HandleCustomerSubscriptionCreated(stripeEvent);
+                break;
+            
+            case Events.InvoicePaid:
+                await HandleInvoicePaid(stripeEvent);
+                break;
+            
             case Events.InvoicePaymentFailed:
-                Console.WriteLine("*****************Invoice payment failed*****************");
-                break;
-            default:
-                Console.WriteLine("***************** Unhandled event type: {0} *****************", stripeEvent.Type);
+                await HandleInvoicePaymentFailed(stripeEvent);
                 break;
         }
+    }
 
-        return stripeEvent;
+    private async Task HandleCustomerCreated(Event stripeEvent)
+    {
+        var customer = stripeEvent.Data.Object as Customer;
+        var user = await _userManager.FindByEmailAsync(customer!.Email);
+
+        user.StripeCustomerId = customer.Id;
+        await _repository.SaveChangesAsync();
+    }
+
+    private async Task HandleInvoiceCreated(Event stripeEvent)
+    {
+        var stripeInvoice = stripeEvent.Data.Object as Stripe.Invoice;
+
+        var user = await _userManager.FindByEmailAsync(stripeInvoice!.CustomerEmail);
+                
+        var invoice = new Invoice()
+        {
+            Amount = (int)stripeInvoice.Total,
+            User = user
+        };
+                
+        await _repository.Add(invoice);
+        await _repository.SaveChangesAsync();
+    }
+
+    private async Task HandleCustomerSubscriptionCreated(Event stripeEvent)
+    {
+        var service = new CustomerService();
+        var subscription = stripeEvent.Data.Object as Subscription;
+        var customer = await service.GetAsync(subscription!.CustomerId);
+
+        var subscriptionCreateDto = new SubscriptionCreateDto
+        {
+            Email = customer.Email,
+            StartDateTime = subscription.CurrentPeriodStart,
+            EndDateTime = subscription.CurrentPeriodEnd
+        };
+
+        await _subscriptionsService.CreateSubscription(subscriptionCreateDto);
+    }
+
+    private async Task HandleInvoicePaid(Event stripeEvent)
+    {
+        var stripeInvoice = stripeEvent.Data.Object as Stripe.Invoice;
+        var invoice = await _invoicesRepository.GetInvoiceByStripeInvoiceId(stripeInvoice!.Id);
+
+        invoice!.Status = InvoiceStatus.Success;
+        await _repository.SaveChangesAsync();
+    }
+
+    private async Task HandleInvoicePaymentFailed(Event stripeEvent)
+    {
+        var stripeInvoice = stripeEvent.Data.Object as Stripe.Invoice;
+        var invoice = await _invoicesRepository.GetInvoiceByStripeInvoiceId(stripeInvoice!.Id);
+
+        invoice!.Status = InvoiceStatus.Fail;
+        await _repository.SaveChangesAsync();
     }
 
     private async Task<Session> CreateSession(CreateCheckoutSessionRequestDto req)
     {
+        var user = await _userManager.FindByIdAsync(req.ClientReferenceId);
+        
         var options = new SessionCreateOptions
         {
             SuccessUrl = req.SuccessUrl,
@@ -196,7 +187,8 @@ public class InvoicesService : IInvoicesService
                 },
             },
             ClientReferenceId = req.ClientReferenceId,
-            CustomerEmail = req.CustomerEmail
+            CustomerEmail = user.StripeCustomerId is null ? req.CustomerEmail : null,
+            Customer = user.StripeCustomerId
         };
 
         var service = new SessionService();
@@ -204,61 +196,4 @@ public class InvoicesService : IInvoicesService
 
         return session;
     }
-
-
-    // private async Task updateSubscription(Subscription subscription)
-    // {
-    //     var subscriptionFromDb = await _subscriberRepository.GetByIdAsync(subscription.Id);
-    //     if (subscriptionFromDb != null)
-    //     {
-    //         subscriptionFromDb.Status = subscription.Status;
-    //         subscriptionFromDb.CurrentPeriodEnd = subscription.CurrentPeriodEnd;
-    //         await _subscriberRepository.UpdateAsync(subscriptionFromDb);
-    //         Console.WriteLine("Subscription Updated");
-    //     }
-    //
-    // }
-    //
-    // private async Task addCustomerIdToUser(Customer customer)
-    // {
-    //     try
-    //     {
-    //         var userFromDb = await _userManager.FindByEmailAsync(customer.Email);
-    //
-    //         if (userFromDb != null)
-    //         {
-    //             userFromDb.CustomerId = customer.Id;
-    //             await _userManager.UpdateAsync(userFromDb);
-    //             Console.WriteLine("Customer Id added to user ");
-    //         }
-    //
-    //     }
-    //     catch (System.Exception ex)
-    //     {
-    //         Console.WriteLine("Unable to add customer id to user");
-    //         Console.WriteLine(ex);
-    //     }
-    // }
-    //
-    // private async Task addSubscriptionToDb(Subscription subscription)
-    // {
-    //     try
-    //     {
-    //         var subscriber = new Subscriber
-    //         {
-    //             Id = subscription.Id,
-    //             CustomerId = subscription.CustomerId,
-    //             Status = "active",
-    //             CurrentPeriodEnd = subscription.CurrentPeriodEnd
-    //         };
-    //         await _subscriberRepository.CreateAsync(subscriber);
-    //
-    //         //You can send the new subscriber an email welcoming the new subscriber
-    //     }
-    //     catch (System.Exception ex)
-    //     {
-    //         Console.WriteLine("Unable to add new subscriber to Database");
-    //         Console.WriteLine(ex.Message);
-    //     }
-    // }
 }

@@ -11,7 +11,7 @@ public class InvoiceConfig : IEntityTypeConfiguration<Invoice>
         builder.Property(i => i.Amount)
             .IsRequired();
         
-        builder.Property(i => i.SessionId)
+        builder.Property(i => i.StripeInvoiceId)
             .IsRequired()
             .HasMaxLength(256);
         

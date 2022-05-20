@@ -6,7 +6,8 @@ namespace Domain.Models;
 public sealed class Invoice : BaseEntity
 {
     public int Amount { get; set; }
-    public string SessionId { get; set; } = String.Empty;
+    //public string SessionId { get; set; } = String.Empty;
+    public string StripeInvoiceId { get; set; } = String.Empty;
     public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
     
