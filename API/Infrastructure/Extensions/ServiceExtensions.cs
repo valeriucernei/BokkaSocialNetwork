@@ -16,6 +16,7 @@ public static class ServiceExtensions
     public static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IRepository, Repository>();
+        builder.Services.AddScoped<IUsersRepository, UsersRepository>();
         builder.Services.AddScoped<IPostsRepository, PostsRepository>();
         builder.Services.AddScoped<ILikesRepository, LikesRepository>();
         builder.Services.AddScoped<IPhotosRepository, PhotosRepository>();

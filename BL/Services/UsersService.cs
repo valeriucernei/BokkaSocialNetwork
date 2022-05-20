@@ -6,6 +6,7 @@ using BL.Interfaces;
 using Common.Dtos.User;
 using Common.Exceptions;
 using Common.Models;
+using DataAccess.Interfaces;
 using Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -19,17 +20,20 @@ public class UsersService : IUsersService
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly SignInManager<User> _signInManager;
+    private readonly IUsersRepository _usersRepository;
 
     public UsersService(
         UserManager<User> userManager,
         IConfiguration configuration,
         IMapper mapper,
-        SignInManager<User> signInManager)
+        SignInManager<User> signInManager,
+        IUsersRepository usersRepository)
     {
         _userManager = userManager;
         _configuration = configuration;
         _mapper = mapper;
         _signInManager = signInManager;
+        _usersRepository = usersRepository;
     }
 
     public async Task<UserUpdateDto> GetUser(ClaimsPrincipal userClaims)
@@ -52,6 +56,9 @@ public class UsersService : IUsersService
     public async Task<UserLoginResponseDto> RefreshToken(ClaimsPrincipal userClaims)
     {
         var user = await GetUserByClaims(userClaims);
+
+        await UpdateUserRole(user);
+        
         var token = await GetToken(user);
         
         return new UserLoginResponseDto()
@@ -150,8 +157,9 @@ public class UsersService : IUsersService
     
     private async Task<JwtSecurityToken> GetToken(User user)
     {
-        var userRoles = await _userManager.GetRolesAsync(user);
+        await UpdateUserRole(user);
         
+        var userRoles = await _userManager.GetRolesAsync(user);
         var authClaims = new List<Claim>
         {
             new (ClaimTypes.Sid, user.Id.ToString()),
@@ -174,5 +182,17 @@ public class UsersService : IUsersService
         );
 
         return token;
+    }
+
+    private async Task UpdateUserRole(User user)
+    {
+        var isPaidUser = await _usersRepository.IsUserPaidUser(user);
+
+        await _userManager.RemoveFromRoleAsync(user, UserRoles.PaidUser);
+        
+        if (isPaidUser)
+            await _userManager.AddToRoleAsync(user, UserRoles.PaidUser);
+        else
+            await _userManager.AddToRoleAsync(user, UserRoles.User);
     }
 }
