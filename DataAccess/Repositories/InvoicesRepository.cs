@@ -20,6 +20,8 @@ public class InvoicesRepository : IInvoicesRepository
 
     public async Task<Invoice?> GetInvoiceByStripeInvoiceId(string id)
     {
-        return await _context.Invoices.FirstOrDefaultAsync(i => i.StripeInvoiceId == id);
+        var result = await _context.Invoices.Where(i => i.StripeInvoiceId == id).FirstAsync();
+
+        return result;
     }
 }

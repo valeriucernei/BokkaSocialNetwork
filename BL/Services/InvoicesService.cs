@@ -124,6 +124,8 @@ public class InvoicesService : IInvoicesService
         var invoice = new Invoice()
         {
             Amount = (int)stripeInvoice.Total,
+            StripeInvoiceId = stripeInvoice.Id,
+            CreatedDateTime = stripeInvoice.Created,
             User = user
         };
                 
@@ -152,7 +154,10 @@ public class InvoicesService : IInvoicesService
         var stripeInvoice = stripeEvent.Data.Object as Stripe.Invoice;
         var invoice = await _invoicesRepository.GetInvoiceByStripeInvoiceId(stripeInvoice!.Id);
 
-        invoice!.Status = InvoiceStatus.Success;
+        if (invoice is null)
+            throw new NotFoundException("There is no invoice with such Id.");
+
+        invoice.Status = InvoiceStatus.Success;
         await _repository.SaveChangesAsync();
     }
 
