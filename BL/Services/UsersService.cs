@@ -36,11 +36,11 @@ public class UsersService : IUsersService
         _usersRepository = usersRepository;
     }
 
-    public async Task<UserUpdateDto> GetUser(ClaimsPrincipal userClaims)
+    public async Task<UserDto> GetUser(ClaimsPrincipal userClaims)
     {
         var user = await this.GetUserByClaims(userClaims);
 
-        return _mapper.Map<UserUpdateDto>(user);
+        return _mapper.Map<UserDto>(user);
     }
     
     public async Task<UserDto?> GetUser(Guid id)
