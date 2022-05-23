@@ -18,6 +18,8 @@ public class PostsRepository : IPostsRepository
         return await _context.Posts
             .Where(p => p.UserId == id)
             .Include(p => p.User)
+            .Include(p => p.Photos)
+            .Include(p => p.Likes)
             .ToListAsync();
     }
 
@@ -35,6 +37,7 @@ public class PostsRepository : IPostsRepository
         return await _context.Posts
             .Include(p => p.Photos)
             .Include(p => p.Likes)
+            .Include(p => p.User)
             .OrderByDescending(p => p.Likes.Count)
             .Take(5)
             .ToListAsync();
